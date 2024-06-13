@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:link/screens/home_page.dart';
 
 void main() {
   runApp(const MainApp());
@@ -14,11 +15,7 @@ class MainApp extends StatelessWidget {
       darkTheme: ThemeData.dark(),
       themeMode: ThemeMode.system,
       title: "Link",
-      home: const Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
+      home: HomePage(),
       debugShowCheckedModeBanner: false,
     );
   }
