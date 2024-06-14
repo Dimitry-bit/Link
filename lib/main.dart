@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:link/models/user_settings.dart';
+import 'package:provider/provider.dart';
 import 'package:link/screens/home_page.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(ChangeNotifierProvider(
+    create: (_) => UserSettings(),
+    child: const MainApp(),
+  ));
 }
 
 class MainApp extends StatelessWidget {
