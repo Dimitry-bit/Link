@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
 class Logo extends StatelessWidget {
-  const Logo({super.key});
+  final String title;
+  final Icon? icon;
+  final TextStyle? style;
+
+  const Logo({required this.title, this.icon, this.style, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,9 +17,9 @@ class Logo extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           margin: const EdgeInsets.only(right: 8.0),
-          child: const Icon(Icons.timeline, size: 42),
+          child: icon,
         ),
-        Text('Link', style: logoStyle),
+        Text(title, style: style ?? logoStyle),
       ],
     );
   }
