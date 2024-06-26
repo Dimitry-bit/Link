@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:link/components/alert.dart';
 import 'package:link/components/outlined_text_button.dart';
-import 'package:link/components/outlined_textfield.dart';
+import 'package:link/components/outlined_text_field.dart';
 import 'package:link/components/page_header.dart';
 import 'package:link/components/rectangle_elevated_button.dart';
 import 'package:link/models/user_settings.dart';
