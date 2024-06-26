@@ -1,4 +1,6 @@
-class Repository<Value> {
+import 'package:flutter/material.dart';
+
+class Repository<Value> extends ChangeNotifier {
   Set<Value> _data = {};
 
   Repository();
@@ -22,11 +24,22 @@ class Repository<Value> {
 
   bool contains(Value value) => _data.contains(value);
 
-  bool add(Value value) => _data.add(value);
+  bool add(Value value) {
+    bool added = _data.add(value);
+    notifyListeners();
+    return added;
+  }
 
-  bool remove(Value value) => _data.remove(value);
+  bool remove(Value value) {
+    bool removed = _data.remove(value);
+    notifyListeners();
+    return removed;
+  }
 
-  void clear() => _data.clear();
+  void clear() {
+    _data.clear();
+    notifyListeners();
+  }
 
   List<dynamic> toJson() => _data
       .map((e) => (e as dynamic).toJson() as Map<String, dynamic>)
