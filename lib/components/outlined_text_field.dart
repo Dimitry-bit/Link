@@ -9,6 +9,7 @@ class OutlinedTextFieldForm extends StatelessWidget {
   final int? maxLines;
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
+  final void Function(String)? onChanged;
 
   const OutlinedTextFieldForm({
     required this.controller,
@@ -19,6 +20,7 @@ class OutlinedTextFieldForm extends StatelessWidget {
     this.maxLines,
     this.keyboardType,
     this.validator,
+    this.onChanged,
     super.key,
   });
 
@@ -36,6 +38,7 @@ class OutlinedTextFieldForm extends StatelessWidget {
         alignLabelWithHint: alignLabelWithHint,
       ),
       validator: validator,
+      onChanged: onChanged,
     );
   }
 }

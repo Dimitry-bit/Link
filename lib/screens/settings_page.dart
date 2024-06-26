@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:link/components/alert.dart';
+import 'package:link/components/outlined_text_button.dart';
 import 'package:link/components/outlined_textfield.dart';
 import 'package:link/components/page_header.dart';
+import 'package:link/components/rectangle_elevated_button.dart';
 import 'package:link/models/user_settings.dart';
 import 'package:provider/provider.dart';
 
@@ -65,9 +67,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     UserSettings userSettings = Provider.of<UserSettings>(context);
     _setControllers(userSettings);
 
@@ -106,30 +105,14 @@ class _SettingsPageState extends State<SettingsPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TextButton(
+                OutlinedTextButton(
                   onPressed: () => _setControllers(userSettings),
-                  style: TextButton.styleFrom(
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                    ),
-                    side: BorderSide(
-                      width: 1.0,
-                      color: colorScheme.primary,
-                    ),
-                  ),
-                  child: const Text('Cancel'),
+                  text: 'Cancel',
                 ),
                 const SizedBox(width: 8.0),
-                ElevatedButton(
+                RectangleElevatedButton(
                   onPressed: () => _submit(context, userSettings),
-                  style: ElevatedButton.styleFrom(
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                    ),
-                    backgroundColor: colorScheme.primary,
-                    foregroundColor: colorScheme.onPrimary,
-                  ),
-                  child: const Text('Save'),
+                  text: 'Save',
                 )
               ],
             ),
