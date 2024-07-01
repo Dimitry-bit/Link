@@ -40,9 +40,8 @@ class LocationsController extends ChangeNotifier {
     }
 
     try {
-      final location = Location(
-        locationDTO.name!,
-        locationDTO.description ?? '');
+      final location =
+          Location(locationDTO.name!, locationDTO.description ?? '');
       _locationsRepo.add(location);
       return Response(location);
     } catch (e) {
@@ -50,8 +49,13 @@ class LocationsController extends ChangeNotifier {
     }
   }
 
-  Response<Location> update(Location location, LocationDTO newData) {
+  Response<Location> update(String name, LocationDTO newData) {
     try {
+      Location? location = getByName(name);
+      if (location == null) {
+        return Response.error("Location '$name' does not exist.");
+      }
+
       if (newData.name != null) {
         location.name = newData.name!;
       }
@@ -60,6 +64,7 @@ class LocationsController extends ChangeNotifier {
         location.description = newData.description!;
       }
 
+      notifyListeners();
       return Response(location);
     } catch (e) {
       return Response.error(e.toString());
@@ -79,7 +84,5 @@ class LocationsController extends ChangeNotifier {
     }
   }
 
-  void _notifyListenersCallback() {
-    notifyListeners();
-  }
+  void _notifyListenersCallback() => notifyListeners();
 }

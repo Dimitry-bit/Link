@@ -1,13 +1,12 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:link/components/outlined_text_button.dart';
-import 'package:link/components/outlined_text_field.dart';
+import 'package:link/components/material_data_grid.dart';
+import 'package:link/components/material_data_grid_header.dart';
 import 'package:link/components/page_header.dart';
-import 'package:link/components/rectangle_elevated_button.dart';
 import 'package:link/controllers/locations_controller.dart';
+import 'package:link/data_sources/location_data_source.dart';
 import 'package:link/dtos/location_dto.dart';
-import 'package:link/models/location.dart';
 import 'package:link/screens/add_location_form.dart';
+import 'package:link/utils/string_utils.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -20,121 +19,89 @@ class LocationsPage extends StatefulWidget {
 
 class _LocationsPageState extends State<LocationsPage> {
   final _searchController = TextEditingController();
-  final _dataGridController = DataGridController();
-  LocationsDataSource? _locationsDataSource;
+  final _gridController = DataGridController();
+  late LocationDataSource _locationsSource;
 
-  Widget _buildTableHeader(LocationsController controller) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 300,
-          height: 55,
-          child: OutlinedTextFieldForm(
-            controller: _searchController,
-            labelText: 'Search',
-            hintText: 'Name',
-            maxLines: 1,
-            onChanged: (text) {
-              _locationsDataSource?.clearFilters();
-              _locationsDataSource?.addFilter(
-                'name',
-                FilterCondition(
-                  type: FilterType.contains,
-                  value: text,
-                  filterBehavior: FilterBehavior.stringDataType,
-                ),
-              );
-            },
-          ),
-        ),
-        const Expanded(
-          child: SizedBox(),
-        ),
-        SizedBox(
-          width: 85,
-          height: 35,
-          child: OutlinedTextButton(
-            text: 'DELETE',
-            color: Colors.red,
-            onPressed: () {
-              String? name = _dataGridController.selectedRow
-                  ?.getCells()
-                  .firstOrNull
-                  ?.value;
+  _handleCellEdit(
+    LocationsController controller,
+    int rowIndex,
+    String columnName,
+    dynamic newValue,
+  ) {
+    LocationDTO dto = LocationDTO();
+    if (columnName == LocationColumns.name.name) {
+      dto.name = newValue.toString();
+    } else if (columnName == LocationColumns.description.name) {
+      dto.description = newValue.toString();
+    }
 
-              if (name != null) {
-                controller.removeLocationById(name);
-              }
-            },
+    String? name = _gridController.selectedRow?.getCells().firstOrNull?.value;
+    if (name != null) {
+      controller.update(name, dto);
+    }
+  }
+
+  Widget _buildHeader(LocationsController controller) {
+    return MaterialDataGridHeader(
+      searchController: _searchController,
+      onSearchChanged: (text) {
+        _locationsSource.clearFilters();
+        _locationsSource.addFilter(
+          LocationColumns.name.name,
+          FilterCondition(
+            type: FilterType.contains,
+            value: text,
+            filterBehavior: FilterBehavior.stringDataType,
           ),
-        ),
-        const SizedBox(width: 16.0),
-        SizedBox(
-          width: 85,
-          height: 35,
-          child: RectangleElevatedButton(
-            text: 'Add',
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (_) => const Dialog(child: AddLocationForm()),
-              );
-            },
-          ),
-        ),
-      ],
+        );
+      },
+      onPressFirst: () {
+        String? name =
+            _gridController.selectedRow?.getCells().firstOrNull?.value;
+
+        if (name != null) {
+          controller.removeLocationById(name);
+        }
+      },
+      onPressSecond: () => showDialog(
+        context: context,
+        builder: (_) => const Dialog(child: AddLocationForm()),
+      ),
     );
   }
 
-  Widget _buildTable(BuildContext context, LocationsController controller) {
+  Widget _buildDataGrid(BuildContext context, LocationsController controller) {
     final theme = Theme.of(context);
     final tableHeaderStyle = theme.textTheme.titleMedium?.copyWith(
       fontWeight: FontWeight.bold,
     );
 
-    _locationsDataSource = LocationsDataSource(
+    _locationsSource = LocationDataSource(
       locations: controller.getAll(),
-      controller: controller,
+      onCellEdit: (rowIndex, columnName, newValue) {
+        _handleCellEdit(controller, rowIndex, columnName, newValue);
+      },
     );
 
-    return SfDataGrid(
-      controller: _dataGridController,
-      source: _locationsDataSource!,
-      allowEditing: true,
-      allowSorting: true,
-      shrinkWrapRows: true,
-      columnWidthMode: ColumnWidthMode.fill,
-      columnWidthCalculationRange: ColumnWidthCalculationRange.allRows,
-      navigationMode: GridNavigationMode.cell,
-      selectionMode: SelectionMode.single,
-      gridLinesVisibility: GridLinesVisibility.horizontal,
-      headerGridLinesVisibility: GridLinesVisibility.horizontal,
-      columns: [
-        GridColumn(
-          columnName: 'name',
-          label: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'Name',
-              overflow: TextOverflow.clip,
-              style: tableHeaderStyle,
+    return MaterialDataGrid(
+      dataGridController: _gridController,
+      dataSource: _locationsSource,
+      columns: LocationColumns.values
+          .map(
+            (e) => GridColumn(
+              columnName: e.name,
+              label: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  StringUtils.toTitleCase(e.name),
+                  overflow: TextOverflow.clip,
+                  style: tableHeaderStyle,
+                ),
+              ),
             ),
-          ),
-        ),
-        GridColumn(
-          columnName: 'description',
-          label: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'Description',
-              overflow: TextOverflow.clip,
-              style: tableHeaderStyle,
-            ),
-          ),
-        ),
-      ],
+          )
+          .toList(),
     );
   }
 
@@ -154,133 +121,15 @@ class _LocationsPageState extends State<LocationsPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildTableHeader(locController),
+                  _buildHeader(locController),
                   const SizedBox(height: 8.0),
-                  Flexible(child: _buildTable(context, locController)),
+                  Flexible(child: _buildDataGrid(context, locController)),
                 ],
               ),
             ),
           ),
         ),
       ],
-    );
-  }
-}
-
-class LocationsDataSource extends DataGridSource {
-  List<DataGridRow> dataGridRows = [];
-  LocationsController controller;
-
-  dynamic newCellValue;
-  TextEditingController editingController = TextEditingController();
-
-  LocationsDataSource({
-    required List<Location> locations,
-    required this.controller,
-  }) {
-    dataGridRows = locations
-        .map<DataGridRow>((e) => DataGridRow(cells: [
-              DataGridCell<String>(
-                columnName: 'name',
-                value: e.name,
-              ),
-              DataGridCell<String>(
-                columnName: 'description',
-                value: e.description,
-              ),
-            ]))
-        .toList();
-  }
-
-  @override
-  List<DataGridRow> get rows => dataGridRows;
-
-  @override
-  DataGridRowAdapter? buildRow(DataGridRow row) {
-    return DataGridRowAdapter(
-        cells: row.getCells().map<Widget>((dataGridCell) {
-      return Container(
-          alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text(
-            dataGridCell.value.toString(),
-            overflow: TextOverflow.ellipsis,
-          ));
-    }).toList());
-  }
-
-  @override
-  Future<void> onCellSubmit(
-    DataGridRow dataGridRow,
-    RowColumnIndex rowColumnIndex,
-    GridColumn column,
-  ) async {
-    final dynamic oldValue = dataGridRow
-            .getCells()
-            .firstWhereOrNull((DataGridCell dataGridCell) =>
-                dataGridCell.columnName == column.columnName)
-            ?.value ??
-        '';
-
-    final int dataRowIndex = dataGridRows.indexOf(dataGridRow);
-
-    if (newCellValue == null || oldValue == newCellValue) {
-      return;
-    }
-
-    String currentName = dataGridRows[dataRowIndex].getCells()[0].value;
-
-    LocationDTO dto = LocationDTO();
-    if (column.columnName == 'name') {
-      dataGridRows[dataRowIndex].getCells()[rowColumnIndex.columnIndex] =
-          DataGridCell<String>(columnName: 'name', value: newCellValue);
-      dto.name = newCellValue.toString();
-      Location l = controller.getByName(currentName)!;
-      controller.update(l, dto);
-    } else if (column.columnName == 'description') {
-      dataGridRows[dataRowIndex].getCells()[rowColumnIndex.columnIndex] =
-          DataGridCell<String>(columnName: 'description', value: newCellValue);
-      dto.description = newCellValue.toString();
-      Location l = controller.getByName(currentName)!;
-      controller.update(l, dto);
-    }
-  }
-
-  @override
-  Widget? buildEditWidget(
-    DataGridRow dataGridRow,
-    RowColumnIndex rowColumnIndex,
-    GridColumn column,
-    CellSubmit submitCell,
-  ) {
-    // Text going to display on editable widget
-    final String displayText = dataGridRow
-            .getCells()
-            .firstWhereOrNull((DataGridCell dataGridCell) =>
-                dataGridCell.columnName == column.columnName)
-            ?.value
-            ?.toString() ??
-        '';
-
-    // The new cell value must be reset.
-    // To avoid committing the [DataGridCell] value that was previously edited
-    // into the current non-modified [DataGridCell].
-    newCellValue = null;
-
-    return Container(
-      padding: const EdgeInsets.all(8.0),
-      alignment: Alignment.centerLeft,
-      child: TextField(
-        autofocus: true,
-        controller: editingController..text = displayText,
-        decoration: const InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 16.0),
-        ),
-        keyboardType: TextInputType.text,
-        onChanged: (String value) {
-          newCellValue = value.isNotEmpty ? value : null;
-        },
-      ),
     );
   }
 }
