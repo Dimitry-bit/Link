@@ -60,7 +60,7 @@ class _LocationsPageState extends State<LocationsPage> {
             _gridController.selectedRow?.getCells().firstOrNull?.value;
 
         if (name != null) {
-          controller.removeLocationById(name);
+          controller.removeByName(name);
         }
       },
       onPressSecond: () => showDialog(

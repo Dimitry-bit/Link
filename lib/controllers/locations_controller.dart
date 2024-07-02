@@ -5,23 +5,22 @@ import 'package:link/models/location.dart';
 import 'package:link/repositories/repository.dart';
 
 class LocationsController extends ChangeNotifier {
-  final Repository<Location> _locationsRepo;
+  final Repository<Location> _repo;
 
-  LocationsController(Repository<Location> locationsRepo)
-      : _locationsRepo = locationsRepo {
-    _locationsRepo.addListener(_notifyListenersCallback);
+  LocationsController(Repository<Location> repo) : _repo = repo {
+    _repo.addListener(_notifyListenersCallback);
   }
 
   @override
   void dispose() {
-    _locationsRepo.removeListener(() => notifyListeners);
+    _repo.removeListener(() => notifyListeners);
     super.dispose();
   }
 
-  List<Location> getAll() => _locationsRepo.data().toList();
+  List<Location> getAll() => _repo.data().toList();
 
   Location? getByName(String name) {
-    Iterator<Location> it = _locationsRepo.iterator();
+    Iterator<Location> it = _repo.iterator();
 
     while (it.moveNext()) {
       if (it.current.name == name) {
@@ -32,17 +31,16 @@ class LocationsController extends ChangeNotifier {
     return null;
   }
 
-  Response<Location> create(LocationDTO locationDTO) {
-    bool isValid = (locationDTO.name?.trim().isNotEmpty ?? false);
+  Response<Location> create(LocationDTO dto) {
+    bool isValid = (dto.name?.trim().isNotEmpty ?? false);
 
     if (!isValid) {
       return Response.error("couldn't create location, missing data");
     }
 
     try {
-      final location =
-          Location(locationDTO.name!, locationDTO.description ?? '');
-      _locationsRepo.add(location);
+      final location = Location(dto.name!, dto.description ?? '');
+      _repo.add(location);
       return Response(location);
     } catch (e) {
       return Response.error(e.toString());
@@ -71,16 +69,10 @@ class LocationsController extends ChangeNotifier {
     }
   }
 
-  void removeLocation(Location location) {
-    if (_locationsRepo.contains(location)) {
-      _locationsRepo.remove(location);
-    }
-  }
-
-  void removeLocationById(String name) {
+  void removeByName(String name) {
     Location? location = getByName(name);
     if (location != null) {
-      removeLocation(location);
+      _repo.remove(location);
     }
   }
 
