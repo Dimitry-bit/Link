@@ -35,7 +35,11 @@ class LocationsController extends ChangeNotifier {
     bool isValid = (dto.name?.trim().isNotEmpty ?? false);
 
     if (!isValid) {
-      return Response.error("couldn't create location, missing data");
+      return Response.error("Couldn't create location, missing data");
+    }
+
+    if (getByName(dto.name!) != null) {
+      return Response.error("Location '${dto.name}' already exists");
     }
 
     try {
@@ -50,12 +54,17 @@ class LocationsController extends ChangeNotifier {
   Response<Location> update(String name, LocationDTO newData) {
     try {
       Location? location = getByName(name);
+
       if (location == null) {
-        return Response.error("Location '$name' does not exist.");
+        return Response.error("Location '$name' does not exist");
       }
 
       if (newData.name != null) {
-        location.name = newData.name!;
+        if (getByName(newData.name!) != null) {
+          return Response.error("Location '${newData.name}' already exists");
+        } else {
+          location.name = newData.name!;
+        }
       }
 
       if (newData.description != null) {
