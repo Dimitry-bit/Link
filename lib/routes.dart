@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:link/screens/locations_page.dart';
+import 'package:link/screens/personnel_page.dart';
 import 'package:link/screens/settings_page.dart';
 
 class Routes {
@@ -32,6 +33,7 @@ class Routes {
       case locationsPage:
         return PageRouteBuilder(pageBuilder: (_, __, ___) => LocationsPage());
       case personnelPage:
+        return PageRouteBuilder(pageBuilder: (_, __, ___) => PersonnelPage());
       case manageSchedulesPage:
         return PageRouteBuilder(
           pageBuilder: (_, __, ___) => Placeholder(
