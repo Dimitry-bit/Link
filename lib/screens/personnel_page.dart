@@ -78,7 +78,7 @@ class _PersonnelPageState extends State<PersonnelPage> {
                 ?.value;
 
             if (email != null) {
-              personnelController.removeByEmail(email);
+              personnelController.removeByKey(email);
             }
           },
           onPressAdd: () => showDialog(

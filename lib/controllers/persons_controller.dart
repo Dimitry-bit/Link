@@ -1,75 +1,66 @@
-import 'package:flutter/material.dart';
+import 'package:link/controllers/controller_base.dart';
 import 'package:link/controllers/response.dart';
 import 'package:link/dtos/person_dto.dart';
 import 'package:link/models/person.dart';
-import 'package:link/repositories/repository.dart';
 
-class PersonnelController extends ChangeNotifier {
-  final Repository<Person> _repo;
-
-  PersonnelController(Repository<Person> repo) : _repo = repo {
-    _repo.addListener(_notifyListenersCallback);
-  }
-
-  @override
-  void dispose() {
-    _repo.removeListener(() => notifyListeners);
-    super.dispose();
-  }
-
-  List<Person> getAll() => _repo.data();
-  Person? getByEmail(String email) => _repo.getByKeyOrNull(email);
+class PersonnelController extends ControllerBase<Person> {
+  PersonnelController(super.repo);
 
   Response<Person> create(PersonDTO dto) {
+    Response<Person> res;
     bool isValid = (dto.name?.trim().isNotEmpty ?? false) &&
         (dto.email?.trim().isNotEmpty ?? false) &&
         (dto.isDoctor != null);
 
-    if (!isValid) {
-      return Response.error("Couldn't create person, missing data");
+    if (isValid) {
+      if (!repo.containsKey(dto.email!)) {
+        try {
+          final person = Person(dto.name!, dto.email!, dto.isDoctor!);
+
+          repo.add(person);
+          res = Response(person);
+        } catch (e) {
+          res = Response<Person>.error(e.toString());
+        }
+      } else {
+        res = Response.error("Person {email: ${dto.email!}} already exists");
+      }
+    } else {
+      res = Response.error("Couldn't create person, missing data");
     }
 
-    if (getByEmail(dto.email!) != null) {
-      return Response.error("Person {email: ${dto.email!}} already exists");
-    }
-
-    try {
-      final person = Person(dto.name!, dto.email!, dto.isDoctor!);
-      _repo.add(person);
-      return Response(person);
-    } catch (e) {
-      return Response.error(e.toString());
-    }
+    notifyOnCreateListeners(res);
+    return res;
   }
 
   Response<Person> update(String email, PersonDTO newData) {
-    try {
-      Person? oldValue = getByEmail(email);
+    Response<Person> res;
+    Person? oldValue = getByKey(email);
 
-      if (oldValue == null) {
-        return Response.error("Person {email: $email} does not exist");
-      }
-
+    if (oldValue != null) {
       Person newValue = oldValue.clone();
-      newValue.name = newData.name ?? newValue.name;
-      newValue.isDoctor = newData.isDoctor ?? newValue.isDoctor;
-      newValue.email = newData.email ?? newValue.email;
 
-      if (oldValue.primaryKey() != newValue.primaryKey() &&
-          _repo.contains(newValue)) {
-        return Response.error(
-            "Person {email: ${newValue.email}} already exists");
+      try {
+        newValue.name = newData.name ?? newValue.name;
+        newValue.isDoctor = newData.isDoctor ?? newValue.isDoctor;
+        newValue.email = newData.email ?? newValue.email;
+
+        bool isKeyChanged = oldValue.primaryKey() != newValue.primaryKey();
+        if (!isKeyChanged || !repo.contains(newValue)) {
+          repo.update(oldValue.primaryKey(), newValue);
+          res = Response(newValue);
+        } else {
+          res = Response.error(
+              "Person {email: ${newValue.email}} already exists");
+        }
+      } catch (e) {
+        res = Response<Person>.error(e.toString());
       }
-
-      _repo.update(oldValue.primaryKey(), newValue);
-      return Response(newValue);
-    } catch (e) {
-      return Response.error(e.toString());
+    } else {
+      res = Response.error("Person {email: $email} does not exist");
     }
+
+    notifyOnUpdateListeners(res);
+    return res;
   }
-
-  void remove(Person p) => _repo.remove(p);
-  void removeByEmail(String email) => _repo.removeByKey(email);
-
-  void _notifyListenersCallback() => notifyListeners();
 }
