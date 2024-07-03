@@ -26,6 +26,7 @@ class Repository<Value extends RepositoryModel> extends ChangeNotifier {
   Value? lastOrNull() => _data.entries.lastOrNull?.value;
 
   bool contains(Value value) => _data.containsKey(value.primaryKey());
+  bool containsKey(String key) => _data.containsKey(key);
 
   void add(Value value) {
     assert(!contains(value));

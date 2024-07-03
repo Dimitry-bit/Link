@@ -17,19 +17,8 @@ class PersonnelController extends ChangeNotifier {
     super.dispose();
   }
 
-  List<Person> getAll() => _repo.data().toList();
-
-  Person? getByEmail(String email) {
-    Iterator<Person> it = _repo.iterator();
-
-    while (it.moveNext()) {
-      if (it.current.email == email) {
-        return it.current;
-      }
-    }
-
-    return null;
-  }
+  List<Person> getAll() => _repo.data();
+  Person? getByEmail(String email) => _repo.getByKeyOrNull(email);
 
   Response<Person> create(PersonDTO dto) {
     bool isValid = (dto.name?.trim().isNotEmpty ?? false) &&
@@ -55,43 +44,32 @@ class PersonnelController extends ChangeNotifier {
 
   Response<Person> update(String email, PersonDTO newData) {
     try {
-      Person? person = getByEmail(email);
+      Person? oldValue = getByEmail(email);
 
-      if (person == null) {
+      if (oldValue == null) {
         return Response.error("Person {email: $email} does not exist");
       }
 
-      if (newData.name != null) {
-        person.name = newData.name!;
+      Person newValue = oldValue.clone();
+      newValue.name = newData.name ?? newValue.name;
+      newValue.isDoctor = newData.isDoctor ?? newValue.isDoctor;
+      newValue.email = newData.email ?? newValue.email;
+
+      if (oldValue.primaryKey() != newValue.primaryKey() &&
+          _repo.contains(newValue)) {
+        return Response.error(
+            "Person {email: ${newValue.email}} already exists");
       }
 
-      if (newData.email != null) {
-        if (getByEmail(newData.email!) != null) {
-          return Response.error(
-              "Person {email: ${newData.email!}} already exists");
-        } else {
-          person.email = newData.email!;
-        }
-      }
-
-      if (newData.isDoctor != null) {
-        person.isDoctor = newData.isDoctor!;
-      }
-
-      notifyListeners();
-      return Response(person);
+      _repo.update(oldValue.primaryKey(), newValue);
+      return Response(newValue);
     } catch (e) {
       return Response.error(e.toString());
     }
   }
 
-  void removeByEmail(String email) {
-    Person? person = getByEmail(email);
-
-    if (person != null) {
-      _repo.remove(person);
-    }
-  }
+  void remove(Person p) => _repo.remove(p);
+  void removeByEmail(String email) => _repo.removeByKey(email);
 
   void _notifyListenersCallback() => notifyListeners();
 }

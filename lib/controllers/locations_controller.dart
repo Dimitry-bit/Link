@@ -17,19 +17,8 @@ class LocationsController extends ChangeNotifier {
     super.dispose();
   }
 
-  List<Location> getAll() => _repo.data().toList();
-
-  Location? getByName(String name) {
-    Iterator<Location> it = _repo.iterator();
-
-    while (it.moveNext()) {
-      if (it.current.name == name) {
-        return it.current;
-      }
-    }
-
-    return null;
-  }
+  List<Location> getAll() => _repo.data();
+  Location? getByName(String name) => _repo.getByKeyOrNull(name);
 
   Response<Location> create(LocationDTO dto) {
     bool isValid = (dto.name?.trim().isNotEmpty ?? false);
@@ -39,7 +28,7 @@ class LocationsController extends ChangeNotifier {
     }
 
     if (getByName(dto.name!) != null) {
-      return Response.error("Location '${dto.name}' already exists");
+      return Response.error("Location {name: ${dto.name}} already exists");
     }
 
     try {
@@ -53,37 +42,31 @@ class LocationsController extends ChangeNotifier {
 
   Response<Location> update(String name, LocationDTO newData) {
     try {
-      Location? location = getByName(name);
+      Location? oldValue = _repo.getByKeyOrNull(name);
 
-      if (location == null) {
-        return Response.error("Location '$name' does not exist");
+      if (oldValue == null) {
+        return Response.error("Location {name: $name} does not exist");
       }
 
-      if (newData.name != null) {
-        if (getByName(newData.name!) != null) {
-          return Response.error("Location '${newData.name}' already exists");
-        } else {
-          location.name = newData.name!;
-        }
+      Location newValue = oldValue.clone();
+      newValue.name = newData.name ?? newValue.name;
+      newValue.description = newData.description ?? newValue.description;
+
+      if (oldValue.primaryKey() != newValue.primaryKey() &&
+          _repo.contains(newValue)) {
+        return Response.error(
+            "Location {name: ${newValue.name}} already exists");
       }
 
-      if (newData.description != null) {
-        location.description = newData.description!;
-      }
-
-      notifyListeners();
-      return Response(location);
+      _repo.update(oldValue.primaryKey(), newValue);
+      return Response(newValue);
     } catch (e) {
       return Response.error(e.toString());
     }
   }
 
-  void removeByName(String name) {
-    Location? location = getByName(name);
-    if (location != null) {
-      _repo.remove(location);
-    }
-  }
+  void remove(Location v) => _repo.remove(v);
+  void removeByName(String name) => _repo.removeByKey(name);
 
   void _notifyListenersCallback() => notifyListeners();
 }
