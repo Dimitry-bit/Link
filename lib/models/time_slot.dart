@@ -1,9 +1,10 @@
 import 'package:link/models/course.dart';
 import 'package:link/models/location.dart';
 import 'package:link/models/person.dart';
+import 'package:link/models/repository_model.dart';
 
 // TODO: Implement DateTime
-class TimeSlot {
+class TimeSlot implements RepositoryModel {
   static int _idGenerator = 0;
 
   final int _id;
@@ -93,4 +94,7 @@ class TimeSlot {
   String toString() {
     return 'Course: ${_course.name}, Location: ${_location.name}, Person: ${_person.name}';
   }
+
+  @override
+  String primaryKey() => _id.toString();
 }

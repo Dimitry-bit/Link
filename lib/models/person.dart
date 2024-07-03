@@ -1,8 +1,9 @@
+import 'package:link/models/repository_model.dart';
 import 'package:link/utils/email_utils.dart';
 
-class Person {
-  String _name;
+class Person implements RepositoryModel {
   late String _email;
+  String _name;
   bool _isDoctor;
 
   Person(String name, String email, bool isDoctor)
@@ -56,4 +57,7 @@ class Person {
 
   @override
   String toString() => "${_isDoctor ? "Dr." : "TA."} $_name, email: '$_email'";
+
+  @override
+  String primaryKey() => _email;
 }

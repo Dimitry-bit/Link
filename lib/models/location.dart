@@ -1,4 +1,6 @@
-class Location {
+import 'package:link/models/repository_model.dart';
+
+class Location implements RepositoryModel {
   String _name;
   String _description;
 
@@ -36,4 +38,7 @@ class Location {
 
   @override
   String toString() => "$_name, description: '$description'";
+
+  @override
+  String primaryKey() => _name;
 }

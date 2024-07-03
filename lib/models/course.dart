@@ -1,4 +1,6 @@
-class Course {
+import 'package:link/models/repository_model.dart';
+
+class Course implements RepositoryModel {
   late String _name;
   late String _code;
   String _department;
@@ -130,4 +132,7 @@ class Course {
     return "$_name, code: '$_code', dept: '$_department', creditHours: $_creditHours,"
         "year: $_year, (lecture, lab, section): '$_hasLecture $_hasLab, $_hasSection'";
   }
+
+  @override
+  String primaryKey() => _code;
 }

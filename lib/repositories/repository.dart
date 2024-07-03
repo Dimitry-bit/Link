@@ -1,39 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:link/models/repository_model.dart';
 
-class Repository<Value> extends ChangeNotifier {
-  Set<Value> _data = {};
+class Repository<Value extends RepositoryModel> extends ChangeNotifier {
+  Map<String, Value> _data = {};
 
   Repository();
 
-  Repository.initialize(Set<Value> data) : _data = data;
+  Repository.initialize(Set<Value> data) {
+    _data = {for (var e in data) e.primaryKey(): e};
+  }
 
-  Set<Value> data() => _data;
+  List<Value> data() => _data.values.toList();
 
-  Iterator<Value> iterator() => _data.iterator;
+  Iterator<Value> iterator() => _data.values.iterator;
 
   bool isEmpty() => _data.isEmpty;
   bool isNotEmpty() => _data.isNotEmpty;
 
   int length() => _data.length;
 
-  Value first() => _data.first;
-  Value? firstOrNull() => _data.firstOrNull;
+  Value first() => _data.entries.first.value;
+  Value? firstOrNull() => _data.entries.firstOrNull?.value;
 
-  Value last() => _data.last;
-  Value? lastOrNull() => _data.lastOrNull;
+  Value last() => _data.entries.last.value;
+  Value? lastOrNull() => _data.entries.lastOrNull?.value;
 
-  bool contains(Value value) => _data.contains(value);
+  bool contains(Value value) => _data.containsKey(value.primaryKey());
 
-  bool add(Value value) {
-    bool added = _data.add(value);
+  void add(Value value) {
+    assert(!contains(value));
+
+    _data[value.primaryKey()] = value;
     notifyListeners();
-    return added;
   }
 
-  bool remove(Value value) {
-    bool removed = _data.remove(value);
+  Value getByKey(String key) {
+    return _data[key]!;
+  }
+
+  Value? getByKeyOrNull(String key) {
+    return _data[key];
+  }
+
+  void update(String key, Value newValue) {
+    if (key == newValue.primaryKey()) {
+      _data.update(key, (value) => value = newValue);
+    } else {
+      assert(!contains(newValue));
+
+      _data.remove(key);
+      _data[newValue.primaryKey()] = newValue;
+    }
+
     notifyListeners();
-    return removed;
+  }
+
+  void remove(Value value) => removeByKey(value.primaryKey());
+
+  void removeByKey(String key) {
+    Value? removed = _data.remove(key);
+    if (removed != null) {
+      notifyListeners();
+    }
   }
 
   void clear() {
@@ -41,9 +69,11 @@ class Repository<Value> extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<dynamic> toJson() => _data
-      .map((e) => (e as dynamic).toJson() as Map<String, dynamic>)
-      .toList();
+  List<dynamic> toJson() {
+    return _data.values
+        .map((e) => (e as dynamic).toJson() as Map<String, dynamic>)
+        .toList();
+  }
 
   factory Repository.fromJson(
     List<dynamic> json,
