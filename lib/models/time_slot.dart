@@ -73,6 +73,8 @@ class TimeSlot implements RepositoryModel {
     return TimeSlot.initialize(id, course, location, person);
   }
 
+  TimeSlot clone() => TimeSlot.initialize(_id, _course, _location, _person);
+
   @override
   bool operator ==(Object other) {
     return other is TimeSlot &&

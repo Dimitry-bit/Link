@@ -44,6 +44,8 @@ class Person implements RepositoryModel {
     );
   }
 
+  Person clone() => Person(_name, _email, _isDoctor);
+
   @override
   bool operator ==(Object other) {
     return other is Person &&

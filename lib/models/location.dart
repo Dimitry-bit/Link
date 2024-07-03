@@ -26,6 +26,8 @@ class Location implements RepositoryModel {
     );
   }
 
+  Location clone() => Location(_name, _description);
+
   @override
   bool operator ==(Object other) {
     return other is Location &&

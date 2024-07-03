@@ -102,6 +102,19 @@ class Course implements RepositoryModel {
         json['hasSection'] as bool);
   }
 
+  Course clone() {
+    return Course(
+      _name,
+      _code,
+      _department,
+      _creditHours,
+      _year,
+      _hasLecture,
+      _hasLab,
+      _hasSection,
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     return other is Course &&
