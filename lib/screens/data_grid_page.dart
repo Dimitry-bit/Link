@@ -4,18 +4,44 @@ import 'package:link/components/material_data_grid_header.dart';
 import 'package:link/utils/string_utils.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
+GridColumn buildGridColumn(BuildContext context, String columnName,
+    {TextStyle? style,
+    bool allowEdition = true,
+    bool allowSorting = true,
+    bool allowFiltering = true}) {
+  return GridColumn(
+    columnName: columnName,
+    allowEditing: allowEdition,
+    allowSorting: allowSorting,
+    allowFiltering: allowFiltering,
+    label: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      alignment: Alignment.centerLeft,
+      child: Text(
+        StringUtils.toTitleCase(columnName),
+        overflow: TextOverflow.clip,
+        style: style ??
+            Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
+      ),
+    ),
+  );
+}
+
 class DataGridPage extends StatefulWidget {
   final DataGridController controller;
   final DataGridSource dataSource;
   final void Function() onPressDelete;
   final void Function() onPressAdd;
-  final List<String> columnNames;
+  final List<GridColumn> columns;
   final Map<String, FilterCondition> Function(String)? buildSearchFilters;
 
   const DataGridPage({
     required this.controller,
     required this.dataSource,
-    required this.columnNames,
+    required this.columns,
     required this.onPressDelete,
     required this.onPressAdd,
     this.buildSearchFilters,
@@ -31,11 +57,6 @@ class _DataGridPageState extends State<DataGridPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final tableHeaderStyle = theme.textTheme.titleMedium?.copyWith(
-      fontWeight: FontWeight.bold,
-    );
-
     return Flexible(
       fit: FlexFit.loose,
       child: Card(
@@ -66,21 +87,7 @@ class _DataGridPageState extends State<DataGridPage> {
                 child: MaterialDataGrid(
                   dataGridController: widget.controller,
                   dataSource: widget.dataSource,
-                  columns: widget.columnNames
-                      .map((e) => GridColumn(
-                            columnName: e,
-                            label: Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16.0),
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                StringUtils.toTitleCase(e),
-                                overflow: TextOverflow.clip,
-                                style: tableHeaderStyle,
-                              ),
-                            ),
-                          ))
-                      .toList(),
+                  columns: widget.columns,
                 ),
               ),
             ],

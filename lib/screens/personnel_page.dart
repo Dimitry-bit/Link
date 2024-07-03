@@ -68,7 +68,9 @@ class _PersonnelPageState extends State<PersonnelPage> {
         DataGridPage(
           controller: _gridController,
           dataSource: personnelSource,
-          columnNames: PersonnelColumns.values.map((e) => e.name).toList(),
+          columns: PersonnelColumns.values
+              .map((e) => buildGridColumn(context, e.name))
+              .toList(),
           onPressDelete: () {
             String? email = _gridController.selectedRow
                 ?.getCells()

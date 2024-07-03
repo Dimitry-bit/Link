@@ -66,7 +66,9 @@ class _LocationsPageState extends State<LocationsPage> {
         DataGridPage(
           controller: _gridController,
           dataSource: locationsSource,
-          columnNames: LocationColumns.values.map((e) => e.name).toList(),
+          columns: LocationColumns.values
+              .map((e) => buildGridColumn(context, e.name))
+              .toList(),
           onPressDelete: () {
             String? name =
                 _gridController.selectedRow?.getCells().firstOrNull?.value;
