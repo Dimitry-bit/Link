@@ -27,7 +27,7 @@ class _HomePageState extends State<HomePage> {
       selected: (selectable) ? _selectedRoute == route : false,
       onTap: (route != null)
           ? () {
-              _navigatorKey.currentState!.pushNamed(route);
+              _navigatorKey.currentState!.popAndPushNamed(route);
               setState(() {
                 _selectedRoute = route;
               });
