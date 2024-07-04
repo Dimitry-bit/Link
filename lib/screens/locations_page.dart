@@ -4,7 +4,6 @@ import 'package:link/components/page_header.dart';
 import 'package:link/controllers/locations_controller.dart';
 import 'package:link/controllers/response.dart';
 import 'package:link/data_sources/location_data_source.dart';
-import 'package:link/dtos/location_dto.dart';
 import 'package:link/models/location.dart';
 import 'package:link/screens/add_location_form.dart';
 import 'package:link/screens/data_grid_page.dart';
@@ -20,52 +19,34 @@ class LocationsPage extends StatefulWidget {
 
 class _LocationsPageState extends State<LocationsPage> {
   final _gridController = DataGridController();
+  late LocationsController _locController;
+  late LocationDataSource _locSource;
 
-  _handleCellEdit(
-    LocationsController controller,
-    int rowIndex,
-    String columnName,
-    dynamic newValue,
-  ) {
-    LocationDTO dto = LocationDTO();
-    if (columnName == LocationColumns.name.name) {
-      dto.name = newValue.toString();
-    } else if (columnName == LocationColumns.description.name) {
-      dto.description = newValue.toString();
-    }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
 
-    String? name = _gridController.selectedRow?.getCells().firstOrNull?.value;
-    if (name != null) {
-      Response<Location> res = controller.update(name, dto);
+    _locController = Provider.of<LocationsController>(context, listen: false);
+    _locController.removeOnUpdateListener(_handleOnUpdate);
+    _locController.addOnUpdateListener(_handleOnUpdate);
 
-      if (res.errorStr.isNotEmpty) {
-        final SnackBar alert = alertSnackBar(
-          context,
-          res.errorStr,
-          AlertTypes.error,
-        );
+    _locSource = LocationDataSource(_locController);
+  }
 
-        ScaffoldMessenger.of(context).showSnackBar(alert);
-      }
-    }
+  @override
+  void dispose() {
+    _locController.removeOnUpdateListener(_handleOnUpdate);
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final locController = Provider.of<LocationsController>(context);
-    final locationsSource = LocationDataSource(
-      locations: locController.getAll(),
-      onCellEdit: (rowIndex, columnName, newValue) {
-        _handleCellEdit(locController, rowIndex, columnName, newValue);
-      },
-    );
-
     return Column(
       children: [
         const PageHeader(title: 'Locations'),
         DataGridPage(
           controller: _gridController,
-          dataSource: locationsSource,
+          dataSource: _locSource,
           columns: LocationColumns.values
               .map((e) => buildGridColumn(context, e.name))
               .toList(),
@@ -74,7 +55,7 @@ class _LocationsPageState extends State<LocationsPage> {
                 _gridController.selectedRow?.getCells().firstOrNull?.value;
 
             if (name != null) {
-              locController.removeByKey(name);
+              _locController.removeByKey(name);
             }
           },
           onPressAdd: () => showDialog(
@@ -91,5 +72,17 @@ class _LocationsPageState extends State<LocationsPage> {
         )
       ],
     );
+  }
+
+  void _handleOnUpdate(Response<Location> res) {
+    if (res.errorStr.isNotEmpty) {
+      final SnackBar alert = alertSnackBar(
+        context,
+        res.errorStr,
+        AlertTypes.error,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(alert);
+    }
   }
 }

@@ -4,7 +4,6 @@ import 'package:link/components/page_header.dart';
 import 'package:link/controllers/persons_controller.dart';
 import 'package:link/controllers/response.dart';
 import 'package:link/data_sources/personnel_data_source.dart';
-import 'package:link/dtos/person_dto.dart';
 import 'package:link/models/person.dart';
 import 'package:link/screens/add_person_form.dart';
 import 'package:link/screens/data_grid_page.dart';
@@ -20,54 +19,36 @@ class PersonnelPage extends StatefulWidget {
 
 class _PersonnelPageState extends State<PersonnelPage> {
   final _gridController = DataGridController();
+  late PersonnelController _personnelController;
+  late PersonnelDataSource _personnelSource;
 
-  _handleCellEdit(
-    PersonnelController controller,
-    int rowIndex,
-    String columnName,
-    dynamic newValue,
-  ) {
-    PersonDTO dto = PersonDTO();
-    if (columnName == PersonnelColumns.name.name) {
-      dto.name = newValue.toString();
-    } else if (columnName == PersonnelColumns.email.name) {
-      dto.email = newValue.toString();
-    }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
 
-    String? email =
-        _gridController.selectedRow?.getCells().elementAtOrNull(1)?.value;
+    _personnelController = Provider.of<PersonnelController>(context);
+    _personnelController.removeOnCreteListener(_handleControllerError);
+    _personnelController.removeOnUpdateListener(_handleControllerError);
+    _personnelController.addOnUpdateListener(_handleControllerError);
 
-    if (email != null) {
-      Response<Person> res = controller.update(email, dto);
+    _personnelSource = PersonnelDataSource(_personnelController);
+  }
 
-      if (res.errorStr.isNotEmpty) {
-        final SnackBar alert = alertSnackBar(
-          context,
-          res.errorStr,
-          AlertTypes.error,
-        );
+  @override
+  void dispose() {
+    _personnelController.removeOnUpdateListener(_handleControllerError);
 
-        ScaffoldMessenger.of(context).showSnackBar(alert);
-      }
-    }
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final personnelController = Provider.of<PersonnelController>(context);
-    final personnelSource = PersonnelDataSource(
-      personnel: personnelController.getAll(),
-      onCellEdit: (rowIndex, columnName, newValue) {
-        _handleCellEdit(personnelController, rowIndex, columnName, newValue);
-      },
-    );
-
     return Column(
       children: [
         const PageHeader(title: 'Doctors/TAs'),
         DataGridPage(
           controller: _gridController,
-          dataSource: personnelSource,
+          dataSource: _personnelSource,
           columns: PersonnelColumns.values
               .map((e) => buildGridColumn(context, e.name))
               .toList(),
@@ -78,7 +59,7 @@ class _PersonnelPageState extends State<PersonnelPage> {
                 ?.value;
 
             if (email != null) {
-              personnelController.removeByKey(email);
+              _personnelController.removeByKey(email);
             }
           },
           onPressAdd: () => showDialog(
@@ -102,5 +83,17 @@ class _PersonnelPageState extends State<PersonnelPage> {
         ),
       ],
     );
+  }
+
+  void _handleControllerError(Response<Person> res) {
+    if (res.errorStr.isNotEmpty) {
+      final SnackBar alert = alertSnackBar(
+        context,
+        res.errorStr,
+        AlertTypes.error,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(alert);
+    }
   }
 }

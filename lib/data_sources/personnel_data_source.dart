@@ -1,5 +1,8 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:link/controllers/persons_controller.dart';
+import 'package:link/controllers/response.dart';
+import 'package:link/data_sources/data_grid_source_base.dart';
+import 'package:link/dtos/person_dto.dart';
 import 'package:link/models/person.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -8,35 +11,26 @@ enum PersonnelColumns {
   email,
 }
 
-class PersonnelDataSource extends DataGridSource {
-  final void Function(
-    int rowIndex,
-    String columnName,
-    dynamic newValue,
-  )? onCellEdit;
-  final TextEditingController _editingController = TextEditingController();
-  late List<DataGridRow> _dataGridRows = [];
+class PersonnelDataSource extends DataGridSourceBase<Person> {
   dynamic _newCellValue;
 
-  PersonnelDataSource({required List<Person> personnel, this.onCellEdit}) {
-    _dataGridRows = personnel
-        .map<DataGridRow>((e) => DataGridRow(
-              cells: [
-                DataGridCell<String>(
-                  columnName: PersonnelColumns.name.name,
-                  value: (e.isDoctor ? 'Dr ' : 'TA ') + e.name,
-                ),
-                DataGridCell<String>(
-                  columnName: PersonnelColumns.email.name,
-                  value: e.email,
-                ),
-              ],
-            ))
-        .toList();
-  }
+  PersonnelDataSource(PersonnelController super.controller);
 
   @override
-  List<DataGridRow> get rows => _dataGridRows;
+  DataGridRow buildDataGridRow(Person v) {
+    return DataGridRow(
+      cells: [
+        DataGridCell<String>(
+          columnName: PersonnelColumns.name.name,
+          value: (v.isDoctor ? 'Dr ' : 'TA ') + v.name,
+        ),
+        DataGridCell<String>(
+          columnName: PersonnelColumns.email.name,
+          value: v.email,
+        ),
+      ],
+    );
+  }
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
@@ -61,20 +55,28 @@ class PersonnelDataSource extends DataGridSource {
     RowColumnIndex rowColumnIndex,
     GridColumn column,
   ) async {
-    if (onCellEdit == null) {
+    final dynamic oldValue = dataGridRow.getCells()[rowColumnIndex.columnIndex];
+    if ((_newCellValue == null) || (oldValue == _newCellValue)) {
       return;
     }
 
-    final oldValue = dataGridRow
-        .getCells()
-        .firstWhereOrNull((cell) => cell.columnName == column.columnName)
-        ?.value;
-
-    if (_newCellValue == null || oldValue == _newCellValue) {
-      return;
+    PersonDTO dto = PersonDTO();
+    if (column.columnName == PersonnelColumns.name.name) {
+      dto.name = _newCellValue.toString();
+    } else if (column.columnName == PersonnelColumns.email.name) {
+      dto.email = _newCellValue.toString();
     }
 
-    onCellEdit!(rowColumnIndex.rowIndex, column.columnName, _newCellValue);
+    int dataRowIndex = rows.indexOf(dataGridRow);
+    String? email = dataGridRow.getCells().elementAtOrNull(1)?.value;
+    if (email != null) {
+      PersonnelController ctrl = controller as PersonnelController;
+      Response<Person> res = ctrl.update(email, dto);
+
+      if (res.errorStr.isEmpty) {
+        rows[dataRowIndex] = buildDataGridRow(res.data!);
+      }
+    }
   }
 
   @override
@@ -84,17 +86,10 @@ class PersonnelDataSource extends DataGridSource {
     GridColumn column,
     CellSubmit submitCell,
   ) {
-    // Text going to display on editable widget
-    final String displayText = dataGridRow
-            .getCells()
-            .firstWhereOrNull((cell) => cell.columnName == column.columnName)
-            ?.value
-            ?.toString() ??
-        '';
+    final editingController = TextEditingController();
+    final String displayText =
+        dataGridRow.getCells()[rowColumnIndex.columnIndex].value.toString();
 
-    // The new cell value must be reset.
-    // To avoid committing the [DataGridCell] value that was previously edited
-    // into the current non-modified [DataGridCell].
     _newCellValue = null;
 
     return Container(
@@ -102,7 +97,7 @@ class PersonnelDataSource extends DataGridSource {
       alignment: Alignment.centerLeft,
       child: TextField(
         autofocus: true,
-        controller: _editingController..text = displayText,
+        controller: editingController..text = displayText,
         decoration: const InputDecoration(
           contentPadding: EdgeInsets.only(bottom: 16.0),
         ),

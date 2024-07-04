@@ -1,5 +1,8 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:link/controllers/locations_controller.dart';
+import 'package:link/controllers/response.dart';
+import 'package:link/data_sources/data_grid_source_base.dart';
+import 'package:link/dtos/location_dto.dart';
 import 'package:link/models/location.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -8,54 +11,40 @@ enum LocationColumns {
   description,
 }
 
-class LocationDataSource extends DataGridSource {
-  final void Function(
-    int rowIndex,
-    String columnName,
-    dynamic newValue,
-  )? onCellEdit;
-  final TextEditingController _editingController = TextEditingController();
-  List<DataGridRow> _dataGridRows = [];
+class LocationDataSource extends DataGridSourceBase<Location> {
   dynamic _newCellValue;
 
-  LocationDataSource({required List<Location> locations, this.onCellEdit}) {
-    _dataGridRows = locations
-        .map<DataGridRow>(
-          (e) => DataGridRow(
-            cells: [
-              DataGridCell<String>(
-                columnName: LocationColumns.name.name,
-                value: e.name,
-              ),
-              DataGridCell<String>(
-                columnName: LocationColumns.description.name,
-                value: e.description,
-              ),
-            ],
-          ),
-        )
-        .toList();
-  }
+  LocationDataSource(LocationsController super.controller);
 
   @override
-  List<DataGridRow> get rows => _dataGridRows;
+  DataGridRow buildDataGridRow(Location v) {
+    return DataGridRow(
+      cells: [
+        DataGridCell<String>(
+          columnName: LocationColumns.name.name,
+          value: v.name,
+        ),
+        DataGridCell<String>(
+          columnName: LocationColumns.description.name,
+          value: v.description,
+        ),
+      ],
+    );
+  }
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     return DataGridRowAdapter(
-      cells: row
-          .getCells()
-          .map<Widget>(
-            (cell) => Container(
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                cell.value.toString(),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          )
-          .toList(),
+      cells: row.getCells().map<Widget>((cell) {
+        return Container(
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text(
+            cell.value.toString(),
+            overflow: TextOverflow.ellipsis,
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -65,19 +54,28 @@ class LocationDataSource extends DataGridSource {
     RowColumnIndex rowColumnIndex,
     GridColumn column,
   ) async {
-    if (onCellEdit == null) {
-      return;
-    }
-    final oldValue = dataGridRow
-        .getCells()
-        .firstWhereOrNull((cell) => cell.columnName == column.columnName)
-        ?.value;
-
-    if (_newCellValue == null || oldValue == _newCellValue) {
+    final dynamic oldValue = dataGridRow.getCells()[rowColumnIndex.columnIndex];
+    if ((_newCellValue == null) || (oldValue == _newCellValue)) {
       return;
     }
 
-    onCellEdit!(rowColumnIndex.rowIndex, column.columnName, _newCellValue);
+    LocationDTO dto = LocationDTO();
+    if (column.columnName == LocationColumns.name.name) {
+      dto.name = _newCellValue.toString();
+    } else if (column.columnName == LocationColumns.description.name) {
+      dto.description = _newCellValue.toString();
+    }
+
+    final int dataRowIndex = rows.indexOf(dataGridRow);
+    String? name = dataGridRow.getCells().first.value;
+    if (name != null) {
+      LocationsController ctrl = controller as LocationsController;
+      Response<Location> res = ctrl.update(name, dto);
+
+      if (res.errorStr.isEmpty) {
+        rows[dataRowIndex] = buildDataGridRow(res.data!);
+      }
+    }
   }
 
   @override
@@ -87,17 +85,10 @@ class LocationDataSource extends DataGridSource {
     GridColumn column,
     CellSubmit submitCell,
   ) {
-    // Text going to display on editable widget
-    final String displayText = dataGridRow
-            .getCells()
-            .firstWhereOrNull((cell) => cell.columnName == column.columnName)
-            ?.value
-            ?.toString() ??
-        '';
+    final editingController = TextEditingController();
+    final String displayText =
+        dataGridRow.getCells()[rowColumnIndex.columnIndex].value.toString();
 
-    // The new cell value must be reset.
-    // To avoid committing the [DataGridCell] value that was previously edited
-    // into the current non-modified [DataGridCell].
     _newCellValue = null;
 
     return Container(
@@ -105,7 +96,7 @@ class LocationDataSource extends DataGridSource {
       alignment: Alignment.centerLeft,
       child: TextField(
         autofocus: true,
-        controller: _editingController..text = displayText,
+        controller: editingController..text = displayText,
         decoration: const InputDecoration(
           contentPadding: EdgeInsets.only(bottom: 16.0),
         ),
