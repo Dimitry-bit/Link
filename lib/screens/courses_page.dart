@@ -49,9 +49,9 @@ class _CoursesPageState extends State<CoursesPage> {
           controller: _gridController,
           dataSource: _coursesSource,
           columns: CourseColumns.values.map((e) {
-            bool sorting = (e.name != CourseColumns.hasLecture.name) &&
-                (e.name != CourseColumns.hasLab.name) &&
-                (e.name != CourseColumns.hasSection.name);
+            bool sorting = (e.name != CourseColumns.lecture.name) &&
+                (e.name != CourseColumns.lab.name) &&
+                (e.name != CourseColumns.section.name);
 
             return buildGridColumn(
               context,

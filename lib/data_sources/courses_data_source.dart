@@ -12,9 +12,9 @@ enum CourseColumns {
   department,
   creditHours,
   year,
-  hasLecture,
-  hasLab,
-  hasSection,
+  lecture,
+  lab,
+  section,
 }
 
 class CoursesDataSource extends DataGridSourceBase<Course> {
@@ -47,15 +47,15 @@ class CoursesDataSource extends DataGridSourceBase<Course> {
           value: v.year,
         ),
         DataGridCell<bool>(
-          columnName: CourseColumns.hasLecture.name,
+          columnName: CourseColumns.lecture.name,
           value: v.hasLecture,
         ),
         DataGridCell<bool>(
-          columnName: CourseColumns.hasLab.name,
+          columnName: CourseColumns.lab.name,
           value: v.hasLab,
         ),
         DataGridCell<bool>(
-          columnName: CourseColumns.hasSection.name,
+          columnName: CourseColumns.section.name,
           value: v.hasSection,
         ),
       ],
@@ -70,9 +70,9 @@ class CoursesDataSource extends DataGridSourceBase<Course> {
             alignment: Alignment.centerLeft,
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: () {
-              if ((cell.columnName == CourseColumns.hasLecture.name) ||
-                  (cell.columnName == CourseColumns.hasLab.name) ||
-                  (cell.columnName == CourseColumns.hasSection.name)) {
+              if ((cell.columnName == CourseColumns.lecture.name) ||
+                  (cell.columnName == CourseColumns.lab.name) ||
+                  (cell.columnName == CourseColumns.section.name)) {
                 return Checkbox(
                   value: cell.value,
                   onChanged: (value) {
@@ -124,11 +124,11 @@ class CoursesDataSource extends DataGridSourceBase<Course> {
       dto.creditHours = _newCellValue;
     } else if (column.columnName == CourseColumns.year.name) {
       dto.year = _newCellValue;
-    } else if (column.columnName == CourseColumns.hasLecture.name) {
+    } else if (column.columnName == CourseColumns.lecture.name) {
       dto.hasLecture = _newCellValue;
-    } else if (column.columnName == CourseColumns.hasLab.name) {
+    } else if (column.columnName == CourseColumns.lab.name) {
       dto.hasLab = _newCellValue;
-    } else if (column.columnName == CourseColumns.hasSection.name) {
+    } else if (column.columnName == CourseColumns.section.name) {
       dto.hasSection = _newCellValue;
     }
 
@@ -155,9 +155,9 @@ class CoursesDataSource extends DataGridSourceBase<Course> {
     _newCellValue = null;
 
     // Disable edit mode for checkbox widgets (Handled by onChange() instead)
-    if ((column.columnName == CourseColumns.hasLecture.name) ||
-        (column.columnName == CourseColumns.hasLab.name) ||
-        (column.columnName == CourseColumns.hasSection.name)) {
+    if ((column.columnName == CourseColumns.lecture.name) ||
+        (column.columnName == CourseColumns.lab.name) ||
+        (column.columnName == CourseColumns.section.name)) {
       return null;
     }
 
