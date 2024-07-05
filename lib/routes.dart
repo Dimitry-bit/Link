@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:link/screens/courses_page.dart';
 import 'package:link/screens/locations_page.dart';
 import 'package:link/screens/personnel_page.dart';
 import 'package:link/screens/settings_page.dart';
@@ -24,12 +25,13 @@ class Routes {
       case gpaPage:
       case mapPage:
       case viewSchedulesPage:
-      case coursesPage:
         return PageRouteBuilder(
           pageBuilder: (_, __, ___) => Placeholder(
               color: Color((Random().nextDouble() * 0xFFFFFF).toInt())
                   .withOpacity(1.0)),
         );
+      case coursesPage:
+        return PageRouteBuilder(pageBuilder: (_, __, ___) => CoursesPage());
       case locationsPage:
         return PageRouteBuilder(pageBuilder: (_, __, ___) => LocationsPage());
       case personnelPage:

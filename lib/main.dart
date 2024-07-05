@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:link/controllers/courses_controller.dart';
 import 'package:link/controllers/locations_controller.dart';
 import 'package:link/controllers/persons_controller.dart';
+import 'package:link/models/course.dart';
 import 'package:link/models/location.dart';
 import 'package:link/models/person.dart';
 import 'package:link/models/user_settings.dart';
@@ -12,13 +14,23 @@ void main() {
   ApplicationRepository appRepo = ApplicationRepository();
 
   for (int i = 0; i < 10; i++) {
-    Location location = Location('Test Location $i', 'Test Description $i');
-    appRepo.locations.add(location);
-  }
-
-  for (int i = 0; i < 10; i++) {
     Person person = Person('Test Person $i', 'test$i@example.com', i % 2 == 0);
     appRepo.personnel.add(person);
+
+    Location location = Location('Test Location $i', 'Test Description $i');
+    appRepo.locations.add(location);
+
+    Course course = Course(
+      'Course $i',
+      'CS$i',
+      'Dept $i',
+      i + 1,
+      i + 1,
+      i % 2 == 0,
+      i % 2 != 0,
+      i % 2 == 0,
+    );
+    appRepo.courses.add(course);
   }
 
   runApp(MultiProvider(
@@ -28,6 +40,8 @@ void main() {
           create: (_) => LocationsController(appRepo.locations)),
       ChangeNotifierProvider<PersonnelController>(
           create: (_) => PersonnelController(appRepo.personnel)),
+      ChangeNotifierProvider<CoursesController>(
+          create: (_) => CoursesController(appRepo.courses)),
     ],
     child: const MainApp(),
   ));
