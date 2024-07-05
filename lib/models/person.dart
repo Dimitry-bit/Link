@@ -12,6 +12,8 @@ class Person implements RepositoryModel {
     _email = email;
   }
 
+  String getPrefixedName() => '${_isDoctor ? "Dr" : "TA"} $_name';
+
   String get name => _name;
   set name(String name) => _name = name.trim();
 
@@ -58,7 +60,7 @@ class Person implements RepositoryModel {
   int get hashCode => _name.hashCode ^ _email.hashCode ^ _isDoctor.hashCode;
 
   @override
-  String toString() => "${_isDoctor ? "Dr." : "TA."} $_name, email: '$_email'";
+  String toString() => "${getPrefixedName()}, email: '$_email'";
 
   @override
   String primaryKey() => _email;

@@ -87,10 +87,15 @@ class PersonnelDataSource extends DataGridSourceBase<Person> {
     CellSubmit submitCell,
   ) {
     final editingController = TextEditingController();
-    final String displayText =
+    String displayText =
         dataGridRow.getCells()[rowColumnIndex.columnIndex].value.toString();
 
     _newCellValue = null;
+
+    // Skip prefix ('Da '/'TA ')
+    if (column.columnName == PersonnelColumns.name.name) {
+      displayText = displayText.substring(3);
+    }
 
     return Container(
       padding: const EdgeInsets.all(8.0),
