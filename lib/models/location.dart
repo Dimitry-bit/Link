@@ -1,6 +1,6 @@
 import 'package:link/models/repository_model.dart';
 
-class Location implements RepositoryModel {
+class Location implements RepositoryModel<Location> {
   String _name;
   String _description;
 
@@ -26,6 +26,7 @@ class Location implements RepositoryModel {
     );
   }
 
+  @override
   Location clone() => Location(_name, _description);
 
   @override

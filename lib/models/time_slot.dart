@@ -4,7 +4,7 @@ import 'package:link/models/person.dart';
 import 'package:link/models/repository_model.dart';
 
 // TODO: Implement DateTime
-class TimeSlot implements RepositoryModel {
+class TimeSlot implements RepositoryModel<TimeSlot> {
   static int _idGenerator = 0;
 
   final int _id;
@@ -73,6 +73,10 @@ class TimeSlot implements RepositoryModel {
     return TimeSlot.initialize(id, course, location, person);
   }
 
+  @override
+  String primaryKey() => _id.toString();
+
+  @override
   TimeSlot clone() => TimeSlot.initialize(_id, _course, _location, _person);
 
   @override
@@ -96,7 +100,4 @@ class TimeSlot implements RepositoryModel {
   String toString() {
     return 'Course: ${_course.name}, Location: ${_location.name}, Person: ${_person.name}';
   }
-
-  @override
-  String primaryKey() => _id.toString();
 }

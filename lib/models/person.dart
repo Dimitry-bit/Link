@@ -1,7 +1,7 @@
 import 'package:link/models/repository_model.dart';
 import 'package:link/utils/email_utils.dart';
 
-class Person implements RepositoryModel {
+class Person implements RepositoryModel<Person> {
   late String _email;
   String _name;
   bool _isDoctor;
@@ -46,6 +46,7 @@ class Person implements RepositoryModel {
     );
   }
 
+  @override
   Person clone() => Person(_name, _email, _isDoctor);
 
   @override
