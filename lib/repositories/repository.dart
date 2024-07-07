@@ -44,7 +44,7 @@ class Repository<Value extends RepositoryModel> extends ChangeNotifier {
   }
 
   void update(String key, Value newValue) {
-    if (key == newValue.primaryKey()) {
+    if (containsKey(key) && key == newValue.primaryKey()) {
       _data.update(key, (value) => value = newValue);
     } else {
       assert(!contains(newValue));
@@ -56,14 +56,14 @@ class Repository<Value extends RepositoryModel> extends ChangeNotifier {
     notifyListeners();
   }
 
-  void remove(Value value) => removeByKey(value.primaryKey());
-
   void removeByKey(String key) {
     Value? removed = _data.remove(key);
     if (removed != null) {
       notifyListeners();
     }
   }
+
+  void remove(Value value) => removeByKey(value.primaryKey());
 
   void clear() {
     _data.clear();
