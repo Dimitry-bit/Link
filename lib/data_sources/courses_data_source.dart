@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:link/controllers/courses_controller.dart';
 import 'package:link/controllers/response.dart';
 import 'package:link/data_sources/data_grid_source_base.dart';
 import 'package:link/dtos/course_dto.dart';
@@ -20,7 +19,7 @@ enum CourseColumns {
 class CoursesDataSource extends DataGridSourceBase<Course> {
   dynamic _newCellValue;
 
-  CoursesDataSource(CoursesController super.controller);
+  CoursesDataSource(super.controller);
 
   @override
   DataGridRow buildDataGridRow(Course v) {
@@ -136,8 +135,7 @@ class CoursesDataSource extends DataGridSourceBase<Course> {
     String? code = dataGridRow.getCells().first.value;
 
     if (code != null) {
-      CoursesController ctrl = controller as CoursesController;
-      Response<Course> res = ctrl.update(code, dto);
+      Response<Course> res = controller.update(code, dto);
 
       if (res.errorStr.isEmpty) {
         rows[dataRowIndex] = buildDataGridRow(res.data!);

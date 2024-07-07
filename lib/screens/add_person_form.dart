@@ -4,7 +4,7 @@ import 'package:link/components/outlined_text_button.dart';
 import 'package:link/components/outlined_text_field.dart';
 import 'package:link/components/page_header.dart';
 import 'package:link/components/rectangle_elevated_button.dart';
-import 'package:link/controllers/persons_controller.dart';
+import 'package:link/controllers/crud_controller.dart';
 import 'package:link/controllers/response.dart';
 import 'package:link/dtos/person_dto.dart';
 import 'package:link/models/person.dart';
@@ -24,7 +24,7 @@ class _AddPersonFormState extends State<AddPersonForm> {
   final _emailController = TextEditingController();
   bool _isDoctor = false;
 
-  void addPerson(PersonnelController controller) {
+  void addPerson(CrudController<Person> controller) {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -47,7 +47,7 @@ class _AddPersonFormState extends State<AddPersonForm> {
 
   @override
   Widget build(BuildContext context) {
-    final personnelController = Provider.of<PersonnelController>(context);
+    final personnelController = Provider.of<CrudController<Person>>(context);
 
     return Container(
       padding: const EdgeInsets.all(16.0),

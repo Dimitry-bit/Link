@@ -4,7 +4,7 @@ import 'package:link/components/outlined_text_button.dart';
 import 'package:link/components/outlined_text_field.dart';
 import 'package:link/components/page_header.dart';
 import 'package:link/components/rectangle_elevated_button.dart';
-import 'package:link/controllers/courses_controller.dart';
+import 'package:link/controllers/crud_controller.dart';
 import 'package:link/controllers/response.dart';
 import 'package:link/dtos/course_dto.dart';
 import 'package:link/models/course.dart';
@@ -30,7 +30,7 @@ class _AddCourseFormState extends State<AddCourseForm> {
   bool _hasLab = false;
   bool _hasSection = false;
 
-  void addCourse(CoursesController controller) {
+  void addCourse(CrudController<Course> controller) {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -58,7 +58,7 @@ class _AddCourseFormState extends State<AddCourseForm> {
 
   @override
   Widget build(BuildContext context) {
-    final personnelController = Provider.of<CoursesController>(context);
+    final personnelController = Provider.of<CrudController<Course>>(context);
 
     return Container(
       padding: const EdgeInsets.all(16.0),

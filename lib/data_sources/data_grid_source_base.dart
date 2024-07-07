@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:link/controllers/controller_base.dart';
+import 'package:link/controllers/crud_controller.dart';
 import 'package:link/controllers/response.dart';
 import 'package:link/models/repository_model.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-abstract class DataGridSourceBase<T extends RepositoryModel>
+abstract class DataGridSourceBase<T extends RepositoryModel<T>>
     extends DataGridSource {
   @protected
-  final ControllerBase<T> controller;
+  final CrudController<T> controller;
 
   late List<DataGridRow> _dataGridRows;
 
@@ -16,14 +16,14 @@ abstract class DataGridSourceBase<T extends RepositoryModel>
       return buildDataGridRow(e);
     }).toList();
 
-    controller.addOnCreteListener(_handleOnCreate);
-    controller.addOnRemoveListener(_handleOnDelete);
+    controller.onCreated.addListener(_handleOnCreate);
+    controller.onRemoved.addListener(_handleOnDelete);
   }
 
   @override
   void dispose() {
-    controller.removeOnCreteListener(_handleOnCreate);
-    controller.removeOnRemoveListener(_handleOnDelete);
+    controller.onCreated.removeListener(_handleOnCreate);
+    controller.onRemoved.removeListener(_handleOnDelete);
 
     super.dispose();
   }

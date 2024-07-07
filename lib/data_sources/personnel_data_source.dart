@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:link/controllers/persons_controller.dart';
 import 'package:link/controllers/response.dart';
 import 'package:link/data_sources/data_grid_source_base.dart';
 import 'package:link/dtos/person_dto.dart';
@@ -14,7 +13,7 @@ enum PersonnelColumns {
 class PersonnelDataSource extends DataGridSourceBase<Person> {
   dynamic _newCellValue;
 
-  PersonnelDataSource(PersonnelController super.controller);
+  PersonnelDataSource(super.controller);
 
   @override
   DataGridRow buildDataGridRow(Person v) {
@@ -70,8 +69,7 @@ class PersonnelDataSource extends DataGridSourceBase<Person> {
     int dataRowIndex = rows.indexOf(dataGridRow);
     String? email = dataGridRow.getCells().elementAtOrNull(1)?.value;
     if (email != null) {
-      PersonnelController ctrl = controller as PersonnelController;
-      Response<Person> res = ctrl.update(email, dto);
+      Response<Person> res = controller.update(email, dto);
 
       if (res.errorStr.isEmpty) {
         rows[dataRowIndex] = buildDataGridRow(res.data!);

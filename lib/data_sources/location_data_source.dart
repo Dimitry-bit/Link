@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:link/controllers/locations_controller.dart';
 import 'package:link/controllers/response.dart';
 import 'package:link/data_sources/data_grid_source_base.dart';
 import 'package:link/dtos/location_dto.dart';
@@ -14,7 +13,7 @@ enum LocationColumns {
 class LocationDataSource extends DataGridSourceBase<Location> {
   dynamic _newCellValue;
 
-  LocationDataSource(LocationsController super.controller);
+  LocationDataSource(super.controller);
 
   @override
   DataGridRow buildDataGridRow(Location v) {
@@ -69,8 +68,7 @@ class LocationDataSource extends DataGridSourceBase<Location> {
     final int dataRowIndex = rows.indexOf(dataGridRow);
     String? name = dataGridRow.getCells().first.value;
     if (name != null) {
-      LocationsController ctrl = controller as LocationsController;
-      Response<Location> res = ctrl.update(name, dto);
+      Response<Location> res = controller.update(name, dto);
 
       if (res.errorStr.isEmpty) {
         rows[dataRowIndex] = buildDataGridRow(res.data!);

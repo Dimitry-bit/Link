@@ -4,7 +4,7 @@ import 'package:link/components/outlined_text_button.dart';
 import 'package:link/components/outlined_text_field.dart';
 import 'package:link/components/page_header.dart';
 import 'package:link/components/rectangle_elevated_button.dart';
-import 'package:link/controllers/locations_controller.dart';
+import 'package:link/controllers/crud_controller.dart';
 import 'package:link/controllers/response.dart';
 import 'package:link/dtos/location_dto.dart';
 import 'package:link/models/location.dart';
@@ -22,7 +22,7 @@ class _AddLocationFormState extends State<AddLocationForm> {
   final _descriptionController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  void addLocation(LocationsController controller) {
+  void addLocation(CrudController<Location> controller) {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -44,7 +44,7 @@ class _AddLocationFormState extends State<AddLocationForm> {
 
   @override
   Widget build(BuildContext context) {
-    final locController = Provider.of<LocationsController>(context);
+    final locController = Provider.of<CrudController<Location>>(context);
 
     return Container(
       padding: const EdgeInsets.all(16.0),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:link/components/alert.dart';
 import 'package:link/components/page_header.dart';
-import 'package:link/controllers/persons_controller.dart';
+import 'package:link/controllers/crud_controller.dart';
 import 'package:link/controllers/response.dart';
 import 'package:link/data_sources/personnel_data_source.dart';
 import 'package:link/models/person.dart';
@@ -19,24 +19,24 @@ class PersonnelPage extends StatefulWidget {
 
 class _PersonnelPageState extends State<PersonnelPage> {
   final _gridController = DataGridController();
-  late PersonnelController _personnelController;
+  late CrudController<Person> _personnelController;
   late PersonnelDataSource _personnelSource;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    _personnelController = Provider.of<PersonnelController>(context);
-    _personnelController.removeOnCreteListener(_handleControllerError);
-    _personnelController.removeOnUpdateListener(_handleControllerError);
-    _personnelController.addOnUpdateListener(_handleControllerError);
+    _personnelController =
+        Provider.of<CrudController<Person>>(context, listen: false);
+    _personnelController.onUpdated.removeListener(_handleControllerError);
+    _personnelController.onUpdated.addListener(_handleControllerError);
 
     _personnelSource = PersonnelDataSource(_personnelController);
   }
 
   @override
   void dispose() {
-    _personnelController.removeOnUpdateListener(_handleControllerError);
+    _personnelController.onUpdated.removeListener(_handleControllerError);
 
     super.dispose();
   }

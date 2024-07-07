@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:link/controllers/courses_controller.dart';
-import 'package:link/controllers/locations_controller.dart';
-import 'package:link/controllers/persons_controller.dart';
+import 'package:link/controllers/crud_controller.dart';
 import 'package:link/models/course.dart';
 import 'package:link/models/location.dart';
 import 'package:link/models/person.dart';
@@ -36,12 +34,9 @@ void main() {
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider<UserSettings>(create: (_) => UserSettings()),
-      ChangeNotifierProvider<LocationsController>(
-          create: (_) => LocationsController(appRepo.locations)),
-      ChangeNotifierProvider<PersonnelController>(
-          create: (_) => PersonnelController(appRepo.personnel)),
-      ChangeNotifierProvider<CoursesController>(
-          create: (_) => CoursesController(appRepo.courses)),
+      ChangeNotifierProvider(create: (_) => CrudController(appRepo.locations)),
+      ChangeNotifierProvider(create: (_) => CrudController(appRepo.personnel)),
+      ChangeNotifierProvider(create: (_) => CrudController(appRepo.courses)),
     ],
     child: const MainApp(),
   ));

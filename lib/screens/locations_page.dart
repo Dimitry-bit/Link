@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:link/components/alert.dart';
 import 'package:link/components/page_header.dart';
-import 'package:link/controllers/locations_controller.dart';
+import 'package:link/controllers/crud_controller.dart';
 import 'package:link/controllers/response.dart';
 import 'package:link/data_sources/location_data_source.dart';
 import 'package:link/models/location.dart';
@@ -19,23 +19,24 @@ class LocationsPage extends StatefulWidget {
 
 class _LocationsPageState extends State<LocationsPage> {
   final _gridController = DataGridController();
-  late LocationsController _locController;
+  late CrudController<Location> _locController;
   late LocationDataSource _locSource;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    _locController = Provider.of<LocationsController>(context, listen: false);
-    _locController.removeOnUpdateListener(_handleOnUpdate);
-    _locController.addOnUpdateListener(_handleOnUpdate);
+    _locController =
+        Provider.of<CrudController<Location>>(context, listen: false);
+    _locController.onUpdated.removeListener(_handleControllerError);
+    _locController.onUpdated.addListener(_handleControllerError);
 
     _locSource = LocationDataSource(_locController);
   }
 
   @override
   void dispose() {
-    _locController.removeOnUpdateListener(_handleOnUpdate);
+    _locController.onUpdated.removeListener(_handleControllerError);
     super.dispose();
   }
 
@@ -74,7 +75,7 @@ class _LocationsPageState extends State<LocationsPage> {
     );
   }
 
-  void _handleOnUpdate(Response<Location> res) {
+  void _handleControllerError(Response<Location> res) {
     if (res.errorStr.isNotEmpty) {
       final SnackBar alert = alertSnackBar(
         context,

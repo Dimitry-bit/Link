@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:link/components/alert.dart';
 import 'package:link/components/page_header.dart';
-import 'package:link/controllers/courses_controller.dart';
+import 'package:link/controllers/crud_controller.dart';
 import 'package:link/controllers/response.dart';
 import 'package:link/data_sources/courses_data_source.dart';
 import 'package:link/models/course.dart';
@@ -19,23 +19,23 @@ class CoursesPage extends StatefulWidget {
 
 class _CoursesPageState extends State<CoursesPage> {
   final _gridController = DataGridController();
-  late CoursesController _coursesController;
+  late CrudController<Course> _coursesController;
   late CoursesDataSource _coursesSource;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    _coursesController = Provider.of<CoursesController>(context);
-    _coursesController.removeOnUpdateListener(_handleControllerError);
-    _coursesController.addOnUpdateListener(_handleControllerError);
+    _coursesController = Provider.of<CrudController<Course>>(context);
+    _coursesController.onUpdated.removeListener(_handleControllerError);
+    _coursesController.onUpdated.addListener(_handleControllerError);
 
     _coursesSource = CoursesDataSource(_coursesController);
   }
 
   @override
   void dispose() {
-    _coursesController.removeOnUpdateListener(_handleControllerError);
+    _coursesController.onUpdated.removeListener(_handleControllerError);
 
     super.dispose();
   }
