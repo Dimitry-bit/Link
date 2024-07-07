@@ -28,6 +28,9 @@ class Repository<Value extends RepositoryModel> extends ChangeNotifier {
   bool contains(Value value) => _data.containsKey(value.primaryKey());
   bool containsKey(String key) => _data.containsKey(key);
 
+  /// Adds [value] into this repository.
+  ///
+  /// Throws an assertion error if [value] is already present this repository .
   void add(Value value) {
     assert(!contains(value));
 
@@ -35,14 +38,29 @@ class Repository<Value extends RepositoryModel> extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Returns the [Value] associated with [key].
+  ///
+  /// Throws exception if no [Value] is associated with [key].
   Value getByKey(String key) {
     return _data[key]!;
   }
 
+  /// Returns the [Value] associated with [RepositoryModel] key.
+  ///
+  /// Returns null if no [Value] is associated with [key].
   Value? getByKeyOrNull(String key) {
     return _data[key];
   }
 
+  /// Updates the value associated with [key] to [newValue].
+  ///
+  /// If [key] exists in this repository and [newValue] has the same primary key as [key],
+  /// the existing value is updated to [newValue].
+  ///
+  /// If [key] does not exist in this repository or [newValue] has a different primary key,
+  /// [key]'s current value is removed, and [newValue] is added with its primary key as the new key.
+  ///
+  /// Throws an assertion error if [newValue] is already present in this repository.
   void update(String key, Value newValue) {
     if (containsKey(key) && key == newValue.primaryKey()) {
       _data.update(key, (value) => value = newValue);
