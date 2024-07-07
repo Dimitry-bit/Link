@@ -27,6 +27,9 @@ class Location implements RepositoryModel<Location> {
   }
 
   @override
+  String primaryKey() => _name;
+
+  @override
   Location clone() => Location(_name, _description);
 
   @override
@@ -41,7 +44,4 @@ class Location implements RepositoryModel<Location> {
 
   @override
   String toString() => "$_name, description: '$description'";
-
-  @override
-  String primaryKey() => _name;
 }

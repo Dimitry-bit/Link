@@ -47,6 +47,9 @@ class Person implements RepositoryModel<Person> {
   }
 
   @override
+  String primaryKey() => _email;
+
+  @override
   Person clone() => Person(_name, _email, _isDoctor);
 
   @override
@@ -62,7 +65,4 @@ class Person implements RepositoryModel<Person> {
 
   @override
   String toString() => "${getPrefixedName()}, email: '$_email'";
-
-  @override
-  String primaryKey() => _email;
 }
