@@ -64,7 +64,7 @@ class Course implements RepositoryModel<Course> {
 
   set year(int year) {
     if (year <= 0) {
-      throw ArgumentError("course year must be '>= 0'");
+      throw ArgumentError("course year must be '> 0'");
     }
 
     _year = year;
