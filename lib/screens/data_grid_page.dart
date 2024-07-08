@@ -6,11 +6,13 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 GridColumn buildGridColumn(BuildContext context, String columnName,
     {TextStyle? style,
+    bool visible = true,
     bool allowEdition = true,
     bool allowSorting = true,
     bool allowFiltering = true}) {
   return GridColumn(
     columnName: columnName,
+    visible: visible,
     allowEditing: allowEdition,
     allowSorting: allowSorting,
     allowFiltering: allowFiltering,
@@ -37,6 +39,7 @@ class DataGridPage extends StatefulWidget {
   final void Function() onPressAdd;
   final List<GridColumn> columns;
   final Map<String, FilterCondition> Function(String)? buildSearchFilters;
+  final bool showCheckboxColumn;
 
   const DataGridPage({
     required this.controller,
@@ -45,6 +48,7 @@ class DataGridPage extends StatefulWidget {
     required this.onPressDelete,
     required this.onPressAdd,
     this.buildSearchFilters,
+    this.showCheckboxColumn = false,
     super.key,
   });
 
@@ -88,6 +92,7 @@ class _DataGridPageState extends State<DataGridPage> {
                   dataGridController: widget.controller,
                   dataSource: widget.dataSource,
                   columns: widget.columns,
+                  showCheckboxColumn: widget.showCheckboxColumn,
                 ),
               ),
             ],

@@ -5,11 +5,13 @@ class MaterialDataGrid extends StatelessWidget {
   final DataGridController dataGridController;
   final DataGridSource dataSource;
   final List<GridColumn> columns;
+  final bool showCheckboxColumn;
 
   const MaterialDataGrid({
     required this.dataGridController,
     required this.dataSource,
     required this.columns,
+    this.showCheckboxColumn = false,
     super.key,
   });
 
@@ -21,6 +23,9 @@ class MaterialDataGrid extends StatelessWidget {
       allowEditing: true,
       allowSorting: true,
       shrinkWrapRows: true,
+      showCheckboxColumn: showCheckboxColumn,
+      checkboxColumnSettings:
+          const DataGridCheckboxColumnSettings(showCheckboxOnHeader: false),
       columnWidthMode: ColumnWidthMode.fill,
       columnWidthCalculationRange: ColumnWidthCalculationRange.allRows,
       navigationMode: GridNavigationMode.cell,
