@@ -17,3 +17,22 @@ class Event<Argument> {
     }
   }
 }
+
+class Event2Args<Arg1, Arg2> {
+  final List<void Function(Arg1, Arg2)> _callbacks = [];
+
+  void addListener(void Function(Arg1, Arg2) listener) {
+    _callbacks.add(listener);
+  }
+
+  void removeListener(void Function(Arg1, Arg2) listener) {
+    _callbacks.remove(listener);
+  }
+
+  /// Notifies all registered listeners of this listener with the provided arguments [arg1], [arg2].
+  void notifyListeners(Arg1 arg1, Arg2 arg2) {
+    for (var callback in _callbacks) {
+      callback(arg1, arg2);
+    }
+  }
+}

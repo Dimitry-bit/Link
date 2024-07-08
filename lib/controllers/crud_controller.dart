@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:link/controllers/event.dart';
+import 'package:link/controllers/events.dart';
 import 'package:link/controllers/response.dart';
 import 'package:link/dtos/dto_base.dart';
 import 'package:link/models/repository_model.dart';
