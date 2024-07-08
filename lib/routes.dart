@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:link/screens/courses_page.dart';
+import 'package:link/screens/gpa_page.dart';
 import 'package:link/screens/locations_page.dart';
 import 'package:link/screens/personnel_page.dart';
 import 'package:link/screens/settings_page.dart';
@@ -22,7 +23,6 @@ class Routes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case dashboardPage:
-      case gpaPage:
       case mapPage:
       case viewSchedulesPage:
         return PageRouteBuilder(
@@ -30,6 +30,8 @@ class Routes {
               color: Color((Random().nextDouble() * 0xFFFFFF).toInt())
                   .withOpacity(1.0)),
         );
+      case gpaPage:
+        return PageRouteBuilder(pageBuilder: (_, __, ___) => GPAPage());
       case coursesPage:
         return PageRouteBuilder(pageBuilder: (_, __, ___) => CoursesPage());
       case locationsPage:
