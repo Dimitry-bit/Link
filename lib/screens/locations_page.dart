@@ -75,11 +75,11 @@ class _LocationsPageState extends State<LocationsPage> {
     );
   }
 
-  void _handleControllerError(Response<Location> res) {
-    if (res.errorStr.isNotEmpty) {
+  void _handleControllerError(Location? oldObj, Response<Location> newValue) {
+    if (newValue.errorStr.isNotEmpty) {
       final SnackBar alert = alertSnackBar(
         context,
-        res.errorStr,
+        newValue.errorStr,
         AlertTypes.error,
       );
 

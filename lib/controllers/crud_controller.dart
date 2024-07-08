@@ -6,7 +6,7 @@ import 'package:link/models/repository_model.dart';
 import 'package:link/repositories/repository.dart';
 
 typedef OnCreatedCallback<T> = void Function(Response<T> res);
-typedef OnUpdatedCallback<T> = void Function(Response<T> res);
+typedef OnUpdatedCallback<T> = void Function(T? oldObj, Response<T> newValue);
 typedef OnRemovedCallback<T> = void Function(T obj);
 
 /// A generic CRUD controller for managing operations on objects of type [T].
@@ -21,7 +21,7 @@ class CrudController<T extends RepositoryModel<T>> extends ChangeNotifier {
   final Event<Response<T>> onCreated = Event();
 
   /// Event fired when an item is updated through this controller.
-  final Event<Response<T>> onUpdated = Event();
+  final Event2Args<T?, Response<T>> onUpdated = Event2Args();
 
   /// Event fired when an item is removed through this controller.
   final Event<T> onRemoved = Event();
@@ -96,7 +96,7 @@ class CrudController<T extends RepositoryModel<T>> extends ChangeNotifier {
       res = Response.error("$typeStr {key: '$key'} does not exist.");
     }
 
-    onUpdated.notifyListeners(res);
+    onUpdated.notifyListeners(oldObj, res);
     return res;
   }
 

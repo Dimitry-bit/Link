@@ -85,11 +85,11 @@ class _PersonnelPageState extends State<PersonnelPage> {
     );
   }
 
-  void _handleControllerError(Response<Person> res) {
-    if (res.errorStr.isNotEmpty) {
+  void _handleControllerError(Person? oldOjb, Response<Person> newValue) {
+    if (newValue.errorStr.isNotEmpty) {
       final SnackBar alert = alertSnackBar(
         context,
-        res.errorStr,
+        newValue.errorStr,
         AlertTypes.error,
       );
 

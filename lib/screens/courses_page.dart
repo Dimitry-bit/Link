@@ -90,11 +90,11 @@ class _CoursesPageState extends State<CoursesPage> {
     );
   }
 
-  void _handleControllerError(Response<Course> res) {
-    if (res.errorStr.isNotEmpty) {
+  void _handleControllerError(Course? oldObj, Response<Course> newValue) {
+    if (newValue.errorStr.isNotEmpty) {
       final SnackBar alert = alertSnackBar(
         context,
-        res.errorStr,
+        newValue.errorStr,
         AlertTypes.error,
       );
 
