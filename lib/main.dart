@@ -11,44 +11,26 @@ import 'package:link/repositories/repository.dart';
 import 'package:provider/provider.dart';
 import 'package:link/screens/home_page.dart';
 
+ApplicationRepository _appRepo = ApplicationRepository();
+Repository<Grade> _grades = Repository();
+
 void main() {
-  ApplicationRepository appRepo = ApplicationRepository();
-  Repository<Grade> grades = Repository();
+  _seed();
 
-  for (int i = 0; i < 10; i++) {
-    Person person = Person('Test Person $i', 'test$i@example.com', i % 2 == 0);
-    appRepo.personnel.add(person);
-
-    Location location = Location('Test Location $i', 'Test Description $i');
-    appRepo.locations.add(location);
-
-    Course course = Course(
-      'Course $i',
-      'CS$i',
-      'Dept $i',
-      i + 1,
-      i + 1,
-      i % 2 == 0,
-      i % 2 != 0,
-      i % 2 == 0,
-    );
-    appRepo.courses.add(course);
-
-    grades.add(Grade(GradeTypes.A, course: course));
-  }
-
-  CrudController<Course> coursesController = CrudController(appRepo.courses);
+  CrudController<Course> coursesController = CrudController(_appRepo.courses);
+  coursesController.runtimeType;
 
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider<UserSettings>(create: (_) => UserSettings()),
-      ChangeNotifierProvider(create: (_) => CrudController(appRepo.locations)),
-      ChangeNotifierProvider(create: (_) => CrudController(appRepo.personnel)),
       ChangeNotifierProvider.value(value: coursesController),
-      ChangeNotifierProvider<CrudController<Grade>>(
-          create: (_) => GradesController(grades, coursesController)),
+      ChangeNotifierProvider(create: (_) => CrudController(_appRepo.locations)),
+      ChangeNotifierProvider(create: (_) => CrudController(_appRepo.personnel)),
+      ChangeNotifierProvider<CrudController<Grade>>(create: (_) {
+        return GradesController(_grades, coursesController);
+      }),
     ],
-    child: const MainApp(),
+    child: MainApp(),
   ));
 }
 
@@ -65,5 +47,28 @@ class MainApp extends StatelessWidget {
       home: HomePage(),
       debugShowCheckedModeBanner: false,
     );
+  }
+}
+
+void _seed() {
+  for (int i = 0; i < 10; i++) {
+    Person person = Person('Test Person $i', 'test$i@example.com', i % 2 == 0);
+    _appRepo.personnel.add(person);
+
+    Location location = Location('Test Location $i', 'Test Description $i');
+    _appRepo.locations.add(location);
+
+    Course course = Course(
+      'Course $i',
+      'CS$i',
+      'Dept $i',
+      i + 1,
+      i + 1,
+      i % 2 == 0,
+      i % 2 != 0,
+      i % 2 == 0,
+    );
+    _appRepo.courses.add(course);
+    _grades.add(Grade(GradeTypes.A, course: course));
   }
 }
