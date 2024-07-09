@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:link/components/alert.dart';
 import 'package:link/components/material_data_grid.dart';
 import 'package:link/components/material_data_grid_header.dart';
+import 'package:link/controllers/crud_controller.dart';
+import 'package:link/controllers/response.dart';
+import 'package:link/models/repository_model.dart';
 import 'package:link/utils/string_utils.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-GridColumn buildGridColumn(BuildContext context, String columnName,
-    {TextStyle? style,
-    bool visible = true,
-    bool allowEdition = true,
-    bool allowSorting = true,
-    bool allowFiltering = true}) {
+GridColumn buildGridColumn(
+  BuildContext context,
+  String columnName, {
+  TextStyle? style,
+  bool visible = true,
+  bool allowEdition = true,
+  bool allowSorting = true,
+  bool allowFiltering = true,
+}) {
   return GridColumn(
     columnName: columnName,
     visible: visible,
@@ -32,21 +39,27 @@ GridColumn buildGridColumn(BuildContext context, String columnName,
   );
 }
 
-class DataGridPage extends StatefulWidget {
+class DataGridPage<T extends RepositoryModel<T>> extends StatefulWidget {
   final DataGridController controller;
   final DataGridSource dataSource;
-  final void Function() onPressDelete;
-  final void Function() onPressAdd;
+  final CrudController<T>? crudController;
+  final void Function()? onPressDelete;
+  final void Function()? onPressAdd;
+  final Widget? addForm;
   final List<GridColumn> columns;
+  final String keyColumnName;
   final Map<String, FilterCondition> Function(String)? buildSearchFilters;
   final bool showCheckboxColumn;
 
   const DataGridPage({
     required this.controller,
     required this.dataSource,
+    this.crudController,
     required this.columns,
-    required this.onPressDelete,
-    required this.onPressAdd,
+    required this.keyColumnName,
+    this.onPressDelete,
+    this.onPressAdd,
+    this.addForm,
     this.buildSearchFilters,
     this.showCheckboxColumn = false,
     super.key,
@@ -58,6 +71,21 @@ class DataGridPage extends StatefulWidget {
 
 class _DataGridPageState extends State<DataGridPage> {
   final _searchController = TextEditingController();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    widget.crudController?.onUpdated.removeListener(_handleUpdateError);
+    widget.crudController?.onUpdated.addListener(_handleUpdateError);
+  }
+
+  @override
+  void dispose() {
+    widget.crudController?.onUpdated.removeListener(_handleUpdateError);
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,8 +111,8 @@ class _DataGridPageState extends State<DataGridPage> {
                     }
                   }
                 },
-                onPressFirst: widget.onPressDelete,
-                onPressSecond: widget.onPressAdd,
+                onPressFirst: widget.onPressDelete ?? _defaultRemove,
+                onPressSecond: widget.onPressAdd ?? _defaultAdd,
               ),
               const SizedBox(height: 8.0),
               Flexible(
@@ -100,5 +128,37 @@ class _DataGridPageState extends State<DataGridPage> {
         ),
       ),
     );
+  }
+
+  void _defaultRemove() {
+    if (widget.crudController != null) {
+      String key = widget.controller.selectedRow
+          ?.getCells()
+          .firstWhere((element) => element.columnName == widget.keyColumnName)
+          .value;
+
+      widget.crudController?.removeByKey(key);
+    }
+  }
+
+  void _defaultAdd() {
+    if (widget.addForm != null) {
+      showDialog(
+        context: context,
+        builder: (_) => Dialog(child: widget.addForm),
+      );
+    }
+  }
+
+  void _handleUpdateError(dynamic oldValue, Response<dynamic> newValue) {
+    if (newValue.errorStr.isNotEmpty) {
+      final SnackBar alert = alertSnackBar(
+        context,
+        newValue.errorStr,
+        AlertTypes.error,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(alert);
+    }
   }
 }

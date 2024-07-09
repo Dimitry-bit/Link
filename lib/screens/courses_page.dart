@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:link/components/alert.dart';
 import 'package:link/components/page_header.dart';
 import 'package:link/controllers/crud_controller.dart';
-import 'package:link/controllers/response.dart';
 import 'package:link/data_sources/courses_data_source.dart';
 import 'package:link/models/course.dart';
 import 'package:link/screens/add_course_form.dart';
@@ -26,18 +24,9 @@ class _CoursesPageState extends State<CoursesPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    _coursesController = Provider.of<CrudController<Course>>(context);
-    _coursesController.onUpdated.removeListener(_handleControllerError);
-    _coursesController.onUpdated.addListener(_handleControllerError);
-
+    _coursesController =
+        Provider.of<CrudController<Course>>(context, listen: false);
     _coursesSource = CoursesDataSource(_coursesController);
-  }
-
-  @override
-  void dispose() {
-    _coursesController.onUpdated.removeListener(_handleControllerError);
-
-    super.dispose();
   }
 
   @override
@@ -45,9 +34,12 @@ class _CoursesPageState extends State<CoursesPage> {
     return Column(
       children: [
         const PageHeader(title: 'Courses'),
-        DataGridPage(
+        DataGridPage<Course>(
           controller: _gridController,
           dataSource: _coursesSource,
+          crudController: _coursesController,
+          addForm: const AddCourseForm(),
+          keyColumnName: CourseColumns.code.name,
           columns: CourseColumns.values.map((e) {
             bool sorting = (e.name != CourseColumns.lecture.name) &&
                 (e.name != CourseColumns.lab.name) &&
@@ -59,18 +51,6 @@ class _CoursesPageState extends State<CoursesPage> {
               allowSorting: sorting,
             );
           }).toList(),
-          onPressDelete: () {
-            String? code =
-                _gridController.selectedRow?.getCells().firstOrNull?.value;
-
-            if (code != null) {
-              _coursesController.removeByKey(code);
-            }
-          },
-          onPressAdd: () => showDialog(
-            context: context,
-            builder: (_) => const Dialog(child: AddCourseForm()),
-          ),
           buildSearchFilters: (searchText) => {
             CourseColumns.code.name: FilterCondition(
               type: FilterType.contains,
@@ -88,17 +68,5 @@ class _CoursesPageState extends State<CoursesPage> {
         ),
       ],
     );
-  }
-
-  void _handleControllerError(Course? oldObj, Response<Course> newValue) {
-    if (newValue.errorStr.isNotEmpty) {
-      final SnackBar alert = alertSnackBar(
-        context,
-        newValue.errorStr,
-        AlertTypes.error,
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(alert);
-    }
   }
 }

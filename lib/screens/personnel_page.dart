@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:link/components/alert.dart';
 import 'package:link/components/page_header.dart';
 import 'package:link/controllers/crud_controller.dart';
-import 'package:link/controllers/response.dart';
 import 'package:link/data_sources/personnel_data_source.dart';
 import 'package:link/models/person.dart';
 import 'package:link/screens/add_person_form.dart';
@@ -26,19 +24,8 @@ class _PersonnelPageState extends State<PersonnelPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    _personnelController =
-        Provider.of<CrudController<Person>>(context, listen: false);
-    _personnelController.onUpdated.removeListener(_handleControllerError);
-    _personnelController.onUpdated.addListener(_handleControllerError);
-
+    _personnelController = Provider.of<CrudController<Person>>(context, listen: false);
     _personnelSource = PersonnelDataSource(_personnelController);
-  }
-
-  @override
-  void dispose() {
-    _personnelController.onUpdated.removeListener(_handleControllerError);
-
-    super.dispose();
   }
 
   @override
@@ -46,26 +33,15 @@ class _PersonnelPageState extends State<PersonnelPage> {
     return Column(
       children: [
         const PageHeader(title: 'Doctors/TAs'),
-        DataGridPage(
+        DataGridPage<Person>(
           controller: _gridController,
           dataSource: _personnelSource,
+          crudController: _personnelController,
+          addForm: const AddPersonForm(),
+          keyColumnName: PersonnelColumns.email.name,
           columns: PersonnelColumns.values
               .map((e) => buildGridColumn(context, e.name))
               .toList(),
-          onPressDelete: () {
-            String? email = _gridController.selectedRow
-                ?.getCells()
-                .elementAtOrNull(1)
-                ?.value;
-
-            if (email != null) {
-              _personnelController.removeByKey(email);
-            }
-          },
-          onPressAdd: () => showDialog(
-            context: context,
-            builder: (_) => const Dialog(child: AddPersonForm()),
-          ),
           buildSearchFilters: (searchText) => {
             PersonnelColumns.name.name: FilterCondition(
               type: FilterType.contains,
@@ -83,17 +59,5 @@ class _PersonnelPageState extends State<PersonnelPage> {
         ),
       ],
     );
-  }
-
-  void _handleControllerError(Person? oldOjb, Response<Person> newValue) {
-    if (newValue.errorStr.isNotEmpty) {
-      final SnackBar alert = alertSnackBar(
-        context,
-        newValue.errorStr,
-        AlertTypes.error,
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(alert);
-    }
   }
 }
