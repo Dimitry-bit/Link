@@ -52,11 +52,11 @@ class CrudController<T extends RepositoryModel<T>> extends ChangeNotifier {
         final key = obj.primaryKey();
 
         if (!repo.containsKey(key)) {
+          repo.add(obj);
+          res = Response(obj);
+        } else {
           res = Response.error("$typeStr {key: '$key'} already exists.");
         }
-
-        repo.add(obj);
-        res = Response(obj);
       } catch (e) {
         res = Response.error(e.toString());
       }
