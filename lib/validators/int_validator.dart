@@ -1,20 +1,21 @@
 import 'package:link/validators/validator.dart';
 
-class IntValidator implements Validator {
-  final Validator? _validator;
-
-  IntValidator(Validator? validator) : _validator = validator;
+class IntValidator extends Validator {
+  IntValidator(super.name);
 
   @override
-  String? validate(String? value) {
-    String? validation = _validator?.validate(value);
-    if (validation != null) {
-      return validation;
+  String? validate(dynamic value) {
+    if (value == null) {
+      return '$name is missing';
     }
 
-    int? intValue = int.tryParse(value!);
-    if (intValue == null) {
-      return 'must be an integer';
+    if (value is String) {
+      int? intValue = int.tryParse(value);
+      if (intValue == null) {
+        return '$name is not an integer';
+      }
+    } else {
+      return '$name is not an integer';
     }
 
     return null;

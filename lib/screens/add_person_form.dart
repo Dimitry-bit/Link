@@ -4,8 +4,9 @@ import 'package:link/components/page_header.dart';
 import 'package:link/controllers/crud_controller.dart';
 import 'package:link/dtos/person_dto.dart';
 import 'package:link/models/person.dart';
-import 'package:link/screens/crud_add_form.dart';
+import 'package:link/screens/add_form.dart';
 import 'package:link/utils/email_utils.dart';
+import 'package:link/validators/not_empty_validator.dart';
 import 'package:provider/provider.dart';
 
 class AddPersonForm extends StatefulWidget {
@@ -47,13 +48,8 @@ class _AddPersonFormState extends State<AddPersonForm> {
                   controller: _nameController,
                   labelText: 'Name',
                   maxLines: 1,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Name is missing';
-                    }
-
-                    return null;
-                  },
+                  validator: (value) =>
+                      NotEmptyValidator('Name').validate(value),
                 ),
                 const SizedBox(height: 8.0),
                 OutlinedTextFieldForm(
@@ -61,9 +57,12 @@ class _AddPersonFormState extends State<AddPersonForm> {
                   labelText: 'Email',
                   maxLines: 1,
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Email is missing';
-                    } else if (!EmailUtils.isValidEmail(value)) {
+                    String? validation =
+                        NotEmptyValidator('Email').validate(value);
+
+                    if (validation != null) {
+                      return validation;
+                    } else if (!EmailUtils.isValidEmail(value!)) {
                       return 'Invalid email address';
                     }
 

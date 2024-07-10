@@ -4,7 +4,7 @@ import 'package:link/components/page_header.dart';
 import 'package:link/controllers/crud_controller.dart';
 import 'package:link/dtos/course_dto.dart';
 import 'package:link/models/course.dart';
-import 'package:link/screens/crud_add_form.dart';
+import 'package:link/screens/add_form.dart';
 import 'package:link/validators/int_validator.dart';
 import 'package:link/validators/not_empty_validator.dart';
 import 'package:provider/provider.dart';
@@ -61,15 +61,8 @@ class _AddCourseFormState extends State<AddCourseForm> {
                         controller: _codeController,
                         labelText: 'Code',
                         maxLines: 1,
-                        validator: (value) {
-                          String? validation =
-                              NotEmptyValidator().validate(value);
-                          if (validation != null) {
-                            return 'Code $validation';
-                          }
-
-                          return null;
-                        },
+                        validator: (value) =>
+                            NotEmptyValidator('Code').validate(value),
                       ),
                     ),
                     const SizedBox(width: 8.0),
@@ -79,15 +72,8 @@ class _AddCourseFormState extends State<AddCourseForm> {
                         controller: _nameController,
                         labelText: 'Name',
                         maxLines: 1,
-                        validator: (value) {
-                          String? validation =
-                              NotEmptyValidator().validate(value);
-                          if (validation != null) {
-                            return 'Name $validation';
-                          }
-
-                          return null;
-                        },
+                        validator: (value) =>
+                            NotEmptyValidator('Name').validate(value),
                       ),
                     ),
                   ],
@@ -100,15 +86,8 @@ class _AddCourseFormState extends State<AddCourseForm> {
                         controller: _deptController,
                         labelText: 'Department',
                         maxLines: 1,
-                        validator: (value) {
-                          String? validation =
-                              NotEmptyValidator().validate(value);
-                          if (validation != null) {
-                            return 'Department $validation';
-                          }
-
-                          return null;
-                        },
+                        validator: (value) =>
+                            NotEmptyValidator('Department').validate(value),
                       ),
                     ),
                     const SizedBox(width: 8.0),
@@ -120,9 +99,10 @@ class _AddCourseFormState extends State<AddCourseForm> {
                         maxLines: 1,
                         validator: (value) {
                           String? validation =
-                              IntValidator(NotEmptyValidator()).validate(value);
+                              IntValidator('CreditHours').validate(value);
+
                           if (validation != null) {
-                            return 'CreditHours $validation';
+                            return validation;
                           } else if (int.parse(value!) < 0) {
                             return 'CreditHours must be >= 0';
                           }
@@ -140,9 +120,9 @@ class _AddCourseFormState extends State<AddCourseForm> {
                         maxLines: 1,
                         validator: (value) {
                           String? validation =
-                              IntValidator(NotEmptyValidator()).validate(value);
+                              IntValidator('Year').validate(value);
                           if (validation != null) {
-                            return 'Year $validation';
+                            return validation;
                           } else if (int.parse(value!) <= 0) {
                             return 'Year must be > 0';
                           }

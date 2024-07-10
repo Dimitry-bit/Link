@@ -1,3 +1,7 @@
 abstract class Validator {
-  String? validate(String? value);
+  final String name;
+
+  Validator(this.name);
+
+  String? validate(dynamic value);
 }

@@ -4,7 +4,8 @@ import 'package:link/controllers/crud_controller.dart';
 import 'package:link/dtos/grade_dto.dart';
 import 'package:link/models/course.dart';
 import 'package:link/models/grade.dart';
-import 'package:link/screens/crud_add_form.dart';
+import 'package:link/screens/add_form.dart';
+import 'package:link/validators/not_null_validator.dart';
 import 'package:provider/provider.dart';
 
 class AddGradeForm extends StatefulWidget {
@@ -57,7 +58,7 @@ class _AddGradeFormState extends State<AddGradeForm> {
                       .toList(),
                   onChanged: (value) => setState(() => courseKey = value),
                   validator: (value) =>
-                      (value == null) ? 'Course is missing' : null,
+                      NotNullValidator('Course').validate(value),
                 ),
                 const SizedBox(height: 8.0),
                 DropdownButtonFormField<GradeTypes>(
@@ -71,7 +72,7 @@ class _AddGradeFormState extends State<AddGradeForm> {
                   }).toList(),
                   onChanged: (value) => setState(() => gradeType = value),
                   validator: (value) =>
-                      (value == null) ? 'Grade is missing' : null,
+                      NotNullValidator('Grade').validate(value),
                 ),
               ],
             ),
