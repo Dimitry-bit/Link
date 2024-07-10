@@ -4,7 +4,7 @@ import 'package:link/controllers/crud_controller.dart';
 import 'package:link/dtos/grade_dto.dart';
 import 'package:link/models/course.dart';
 import 'package:link/models/grade.dart';
-import 'package:link/screens/add_form.dart';
+import 'package:link/screens/forms/add_form.dart';
 import 'package:link/validators/not_null_validator.dart';
 import 'package:provider/provider.dart';
 

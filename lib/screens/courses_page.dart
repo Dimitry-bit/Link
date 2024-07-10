@@ -3,7 +3,7 @@ import 'package:link/components/page_header.dart';
 import 'package:link/controllers/crud_controller.dart';
 import 'package:link/data_sources/courses_data_source.dart';
 import 'package:link/models/course.dart';
-import 'package:link/screens/add_course_form.dart';
+import 'package:link/screens/forms/add_course_form.dart';
 import 'package:link/screens/data_grid_page.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
