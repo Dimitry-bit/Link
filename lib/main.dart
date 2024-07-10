@@ -17,12 +17,27 @@ Repository<Grade> _grades = Repository();
 void main() {
   _seed();
 
+  final settings = UserSettings();
+
+  settings.setCommunityLinks('''
+      Flutter, https://flutter.dev/
+      FcisHub, https://fcishub.wordpress.com/
+      Drive, https://www.drive.google.com/intl/en-US/drive/
+      Drive2, https://www.drive.google.com/intl/en-US/drive/
+      Drive3, https://www.drive.google.com/intl/en-US/drive/
+      Drive4, https://www.drive.google.com/intl/en-US/drive/
+      Drive5, https://www.drive.google.com/intl/en-US/drive/
+      Drive6, https://www.drive.google.com/intl/en-US/drive/
+      Drive7, https://www.drive.google.com/intl/en-US/drive/
+      Drive8, https://www.drive.google.com/intl/en-US/drive/
+      ''');
+
   CrudController<Course> coursesController = CrudController(_appRepo.courses);
   coursesController.runtimeType;
 
   runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider<UserSettings>(create: (_) => UserSettings()),
+      ChangeNotifierProvider<UserSettings>.value(value: settings),
       ChangeNotifierProvider.value(value: coursesController),
       ChangeNotifierProvider(create: (_) => CrudController(_appRepo.locations)),
       ChangeNotifierProvider(create: (_) => CrudController(_appRepo.personnel)),

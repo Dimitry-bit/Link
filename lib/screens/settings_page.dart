@@ -36,6 +36,7 @@ class _SettingsPageState extends State<SettingsPage> {
     urlController.text = userSettings.upstreamUrl.toString();
     linksController.text = userSettings
         .communityLinks()
+        .entries
         .map((e) => "${e.key}, ${e.value}")
         .join('\n');
     mapPathsController.text =

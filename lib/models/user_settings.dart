@@ -4,20 +4,14 @@ import 'package:flutter/material.dart';
 
 class UserSettings extends ChangeNotifier {
   Uri _upstreamUrl = Uri();
-  LinkedHashMap<String, Uri> _communityLinks = LinkedHashMap();
+  Map<String, Uri> _communityLinks = {};
   List<String> _mapPaths = List.empty();
 
-  Uri get upstreamUrl {
-    return _upstreamUrl;
-  }
+  Uri get upstreamUrl => _upstreamUrl;
 
-  Iterable<MapEntry<String, Uri>> communityLinks() {
-    return _communityLinks.entries;
-  }
+  Map<String, Uri> communityLinks() => _communityLinks;
 
-  Iterable<String> mapPaths() {
-    return _mapPaths;
-  }
+  List<String> mapPaths() => _mapPaths;
 
   bool setUpstreamUrl(String upstreamUrl) {
     String trimmedUpstream = upstreamUrl.trim();
