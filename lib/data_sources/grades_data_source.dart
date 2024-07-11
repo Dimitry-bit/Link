@@ -71,19 +71,8 @@ class GradesDataSource extends DataGridSourceBase<Grade> {
                             ? _courseMenuItems
                             : _gradeMenuItems,
                         onChanged: (value) {
-                          final cellIndex = RowColumnIndex(
-                            rows.indexOf(row),
-                            row.getCells().indexOf(cell),
-                          );
-
-                          final fakeColumn = GridColumn(
-                            columnName: cell.columnName,
-                            label: const Text(''),
-                          );
-
                           _newCellValue = value;
-                          onCellSubmit(row, cellIndex, fakeColumn);
-                          notifyDataSourceListeners();
+                          directCellEdit(row, cell);
                           _newCellValue = null;
                         },
                       )
