@@ -10,11 +10,11 @@ abstract class DataGridSourceBase<T extends RepositoryModel<T>>
   final CrudController<T> controller;
 
   late List<DataGridRow> _dataGridRows;
+  int? _rowsPerPage;
 
-  DataGridSourceBase(this.controller) {
-    _dataGridRows = controller.getAll().map((e) {
-      return buildDataGridRow(e);
-    }).toList();
+  DataGridSourceBase(this.controller, {int? rowsPerPage = 25})
+      : _rowsPerPage = rowsPerPage {
+    _buildDataGridRows(startIndex: 0, endIndex: _rowsPerPage);
 
     controller.onCreated.addListener(_handleOnCreate);
     controller.onRemoved.addListener(_handleOnDelete);
@@ -33,6 +33,39 @@ abstract class DataGridSourceBase<T extends RepositoryModel<T>>
 
   @override
   List<DataGridRow> get rows => _dataGridRows;
+
+  /// Returns rows per page in the data grid.
+  ///
+  /// A `null` value indicates that paging is disabled.
+  int? get rowsPerPage => _rowsPerPage;
+
+  /// Sets the number of rows per page in the data grid.
+  ///
+  /// Setting [rowsPerPage] to `null` disables the paging feature.
+  ///
+  /// Throws:
+  /// - [ArgumentError] if [rowsPerPage] is less than or equal to 0.
+  set rowsPerPage(int? rowsPerPage) {
+    if (rowsPerPage == null) {
+      _buildDataGridRows(startIndex: 0);
+    } else if (rowsPerPage <= 0) {
+      throw ArgumentError.value(rowsPerPage, 'rowPerPage', "must be '> 0'");
+    }
+
+    _rowsPerPage = rowsPerPage;
+    notifyListeners();
+  }
+
+  @override
+  Future<bool> handlePageChange(int oldPageIndex, int newPageIndex) async {
+    int startIndex = newPageIndex * _rowsPerPage!;
+    int endIndex = startIndex + _rowsPerPage!;
+
+    _buildDataGridRows(startIndex: startIndex, endIndex: endIndex);
+    notifyListeners();
+
+    return Future<bool>.value(true);
+  }
 
   /// Submit a cell for edition, bypassing [buildEditWidget].
   ///
@@ -66,6 +99,24 @@ abstract class DataGridSourceBase<T extends RepositoryModel<T>>
         notifyListeners();
       }
     }
+  }
+
+  void _buildDataGridRows({required int startIndex, int? endIndex}) {
+    final List<T> items = controller.getAll();
+
+    if (startIndex < 0) {
+      startIndex = 0;
+    }
+
+    endIndex ??= items.length;
+    if (endIndex > items.length) {
+      endIndex = items.length;
+    }
+
+    _dataGridRows = items
+        .getRange(startIndex, endIndex)
+        .map<DataGridRow>((e) => buildDataGridRow(e))
+        .toList();
   }
 
   void _handleOnCreate(Response<T> res) {

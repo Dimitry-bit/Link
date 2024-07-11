@@ -6,12 +6,14 @@ class MaterialDataGrid extends StatelessWidget {
   final DataGridSource dataSource;
   final List<GridColumn> columns;
   final bool showCheckboxColumn;
+  final int? rowsPerPage;
 
   const MaterialDataGrid({
     required this.dataGridController,
     required this.dataSource,
     required this.columns,
     this.showCheckboxColumn = false,
+    this.rowsPerPage,
     super.key,
   });
 
@@ -20,9 +22,9 @@ class MaterialDataGrid extends StatelessWidget {
     return SfDataGrid(
       controller: dataGridController,
       source: dataSource,
+      rowsPerPage: rowsPerPage,
       allowEditing: true,
       allowSorting: true,
-      shrinkWrapRows: true,
       showCheckboxColumn: showCheckboxColumn,
       checkboxColumnSettings:
           const DataGridCheckboxColumnSettings(showCheckboxOnHeader: false),

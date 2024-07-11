@@ -4,6 +4,7 @@ import 'package:link/components/material_data_grid.dart';
 import 'package:link/components/material_data_grid_header.dart';
 import 'package:link/controllers/crud_controller.dart';
 import 'package:link/controllers/response.dart';
+import 'package:link/data_sources/data_grid_source_base.dart';
 import 'package:link/models/repository_model.dart';
 import 'package:link/utils/string_utils.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -41,7 +42,7 @@ GridColumn buildGridColumn(
 
 class DataGridPage<T extends RepositoryModel<T>> extends StatefulWidget {
   final DataGridController controller;
-  final DataGridSource dataSource;
+  final DataGridSourceBase dataSource;
   final CrudController<T>? crudController;
   final void Function()? onPressDelete;
   final void Function()? onPressAdd;
@@ -50,6 +51,7 @@ class DataGridPage<T extends RepositoryModel<T>> extends StatefulWidget {
   final String keyColumnName;
   final Map<String, FilterCondition> Function(String)? buildSearchFilters;
   final bool showCheckboxColumn;
+  final double pagerHeight;
 
   const DataGridPage({
     required this.controller,
@@ -62,6 +64,7 @@ class DataGridPage<T extends RepositoryModel<T>> extends StatefulWidget {
     this.addForm,
     this.buildSearchFilters,
     this.showCheckboxColumn = false,
+    this.pagerHeight = 50,
     super.key,
   });
 
@@ -71,6 +74,7 @@ class DataGridPage<T extends RepositoryModel<T>> extends StatefulWidget {
 
 class _DataGridPageState extends State<DataGridPage> {
   final _searchController = TextEditingController();
+  int _rowsPerPage = 25;
 
   @override
   void didChangeDependencies() {
@@ -116,11 +120,27 @@ class _DataGridPageState extends State<DataGridPage> {
               ),
               const SizedBox(height: 8.0),
               Flexible(
-                child: MaterialDataGrid(
-                  dataGridController: widget.controller,
-                  dataSource: widget.dataSource,
-                  columns: widget.columns,
-                  showCheckboxColumn: widget.showCheckboxColumn,
+                child: LayoutBuilder(
+                  builder: (context, constraint) {
+                    return Column(
+                      children: [
+                        SizedBox(
+                          height: constraint.maxHeight -
+                              ((widget.dataSource.rowsPerPage != null)
+                                  ? widget.pagerHeight
+                                  : 0),
+                          width: constraint.maxWidth,
+                          child: MaterialDataGrid(
+                            dataGridController: widget.controller,
+                            dataSource: widget.dataSource,
+                            columns: widget.columns,
+                            showCheckboxColumn: widget.showCheckboxColumn,
+                          ),
+                        ),
+                        _buildDataGridPager(),
+                      ],
+                    );
+                  },
                 ),
               ),
             ],
@@ -128,6 +148,31 @@ class _DataGridPageState extends State<DataGridPage> {
         ),
       ),
     );
+  }
+
+  Widget _buildDataGridPager() {
+    double pageCount =
+        (widget.crudController!.getAll().length / _rowsPerPage).ceilToDouble();
+
+    return (widget.dataSource.rowsPerPage != null)
+        ? SizedBox(
+            height: widget.pagerHeight,
+            child: SfDataPager(
+              itemHeight: widget.pagerHeight - 10,
+              navigationItemHeight: widget.pagerHeight - 10,
+              delegate: widget.dataSource,
+              direction: Axis.horizontal,
+              availableRowsPerPage: const [25, 10, 20, 50, 100],
+              pageCount: pageCount,
+              onRowsPerPageChanged: (int? rowsPerPage) {
+                setState(() {
+                  _rowsPerPage = rowsPerPage!;
+                  widget.dataSource.rowsPerPage = _rowsPerPage;
+                });
+              },
+            ),
+          )
+        : Container();
   }
 
   void _defaultRemove() {
