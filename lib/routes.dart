@@ -23,38 +23,39 @@ class Routes {
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
-      case dashboardPage:
-        return PageRouteBuilder(pageBuilder: (_, __, ___) => Dashboard());
       case mapPage:
       case viewSchedulesPage:
-        return PageRouteBuilder(
-          pageBuilder: (_, __, ___) => Placeholder(
-              color: Color((Random().nextDouble() * 0xFFFFFF).toInt())
-                  .withOpacity(1.0)),
-        );
-      case gpaPage:
-        return PageRouteBuilder(pageBuilder: (_, __, ___) => GPAPage());
-      case coursesPage:
-        return PageRouteBuilder(pageBuilder: (_, __, ___) => CoursesPage());
-      case locationsPage:
-        return PageRouteBuilder(pageBuilder: (_, __, ___) => LocationsPage());
-      case personnelPage:
-        return PageRouteBuilder(pageBuilder: (_, __, ___) => PersonnelPage());
       case manageSchedulesPage:
-        return PageRouteBuilder(
-          pageBuilder: (_, __, ___) => Placeholder(
-              color: Color((Random().nextDouble() * 0xFFFFFF).toInt())
-                  .withOpacity(1.0)),
-        );
+        return _createRoute(Placeholder(
+          color: Color((Random().nextDouble() * 0xFFFFFF).toInt())
+              .withOpacity(1.0),
+        ));
+      case dashboardPage:
+        return _createRoute(const Dashboard());
+      case gpaPage:
+        return _createRoute(const GPAPage());
+      case coursesPage:
+        return _createRoute(const CoursesPage());
+      case locationsPage:
+        return _createRoute(const LocationsPage());
+      case personnelPage:
+        return _createRoute(const PersonnelPage());
       case settingsPage:
-        return PageRouteBuilder(pageBuilder: (_, __, ___) => SettingsPage());
+        return _createRoute(const SettingsPage());
       default:
         throw const RouteException("Route not found");
     }
   }
 
   static List<Route> generateInitialRoutes(String name) {
-    return <Route>[MaterialPageRoute(builder: (_) => const Dashboard())];
+    return [_createRoute(Dashboard())];
+  }
+
+  static PageRoute _createRoute(Widget page) {
+    return PageRouteBuilder(
+      pageBuilder: (_, __, ___) => page,
+      allowSnapshotting: false,
+    );
   }
 }
 
