@@ -24,7 +24,8 @@ class _PersonnelPageState extends State<PersonnelPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    _personnelController = Provider.of<CrudController<Person>>(context, listen: false);
+    _personnelController =
+        Provider.of<CrudController<Person>>(context, listen: false);
     _personnelSource = PersonnelDataSource(_personnelController);
   }
 
@@ -33,7 +34,7 @@ class _PersonnelPageState extends State<PersonnelPage> {
     return Column(
       children: [
         const PageHeader(title: 'Doctors/TAs'),
-        DataGridPage<Person>(
+        CrudDataGrid<Person>(
           controller: _gridController,
           dataSource: _personnelSource,
           crudController: _personnelController,

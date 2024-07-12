@@ -34,7 +34,7 @@ class _CoursesPageState extends State<CoursesPage> {
     return Column(
       children: [
         const PageHeader(title: 'Courses'),
-        DataGridPage<Course>(
+        CrudDataGrid<Course>(
           controller: _gridController,
           dataSource: _coursesSource,
           crudController: _coursesController,

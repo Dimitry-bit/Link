@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:link/components/alert.dart';
-import 'package:link/components/material_data_grid.dart';
 import 'package:link/components/material_data_grid_header.dart';
 import 'package:link/controllers/crud_controller.dart';
 import 'package:link/controllers/response.dart';
@@ -40,28 +39,24 @@ GridColumn buildGridColumn(
   );
 }
 
-class DataGridPage<T extends RepositoryModel<T>> extends StatefulWidget {
+class CrudDataGrid<T extends RepositoryModel<T>> extends StatefulWidget {
   final DataGridController controller;
   final DataGridSourceBase dataSource;
-  final CrudController<T>? crudController;
-  final void Function()? onPressDelete;
-  final void Function()? onPressAdd;
-  final Widget? addForm;
-  final List<GridColumn> columns;
+  final CrudController<T> crudController;
   final String keyColumnName;
+  final List<GridColumn> columns;
+  final Widget addForm;
   final Map<String, FilterCondition> Function(String)? buildSearchFilters;
   final bool showCheckboxColumn;
   final double pagerHeight;
 
-  const DataGridPage({
+  const CrudDataGrid({
     required this.controller,
     required this.dataSource,
-    this.crudController,
+    required this.crudController,
     required this.columns,
     required this.keyColumnName,
-    this.onPressDelete,
-    this.onPressAdd,
-    this.addForm,
+    required this.addForm,
     this.buildSearchFilters,
     this.showCheckboxColumn = false,
     this.pagerHeight = 50,
@@ -69,32 +64,28 @@ class DataGridPage<T extends RepositoryModel<T>> extends StatefulWidget {
   });
 
   @override
-  State<DataGridPage> createState() => _DataGridPageState();
+  State<CrudDataGrid> createState() => _CrudDataGridState();
 }
 
-class _DataGridPageState extends State<DataGridPage> {
+class _CrudDataGridState extends State<CrudDataGrid> {
   final _searchController = TextEditingController();
   int _rowsPerPage = 25;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    widget.crudController?.onUpdated.removeListener(_handleUpdateError);
-    widget.crudController?.onUpdated.addListener(_handleUpdateError);
+  void initState() {
+    super.initState();
+    widget.crudController.onUpdated.addListener(_handleUpdateError);
   }
 
   @override
   void dispose() {
-    widget.crudController?.onUpdated.removeListener(_handleUpdateError);
-
+    widget.crudController.onUpdated.removeListener(_handleUpdateError);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Flexible(
-      fit: FlexFit.loose,
       child: Card(
         elevation: 2.0,
         child: Padding(
@@ -104,19 +95,9 @@ class _DataGridPageState extends State<DataGridPage> {
             children: [
               MaterialDataGridHeader(
                 searchController: _searchController,
-                onSearchChanged: (text) {
-                  widget.dataSource.clearFilters();
-                  if (widget.buildSearchFilters != null) {
-                    Map<String, FilterCondition> filters =
-                        widget.buildSearchFilters!(text);
-
-                    for (var e in filters.entries) {
-                      widget.dataSource.addFilter(e.key, e.value);
-                    }
-                  }
-                },
-                onPressFirst: widget.onPressDelete ?? _defaultRemove,
-                onPressSecond: widget.onPressAdd ?? _defaultAdd,
+                onSearchChanged: _handleOnSearchChanged,
+                onPressFirst: _defaultRemove,
+                onPressSecond: _defaultAdd,
               ),
               const SizedBox(height: 8.0),
               Flexible(
@@ -124,19 +105,7 @@ class _DataGridPageState extends State<DataGridPage> {
                   builder: (context, constraint) {
                     return Column(
                       children: [
-                        SizedBox(
-                          height: constraint.maxHeight -
-                              ((widget.dataSource.rowsPerPage != null)
-                                  ? widget.pagerHeight
-                                  : 0),
-                          width: constraint.maxWidth,
-                          child: MaterialDataGrid(
-                            dataGridController: widget.controller,
-                            dataSource: widget.dataSource,
-                            columns: widget.columns,
-                            showCheckboxColumn: widget.showCheckboxColumn,
-                          ),
-                        ),
+                        _buildDataGrid(constraint),
                         _buildDataGridPager(),
                       ],
                     );
@@ -150,9 +119,37 @@ class _DataGridPageState extends State<DataGridPage> {
     );
   }
 
+  Widget _buildDataGrid(BoxConstraints constraint) {
+    final double height = constraint.maxHeight -
+        ((widget.dataSource.rowsPerPage != null) ? widget.pagerHeight : 0);
+
+    return SizedBox(
+      height: height,
+      width: constraint.maxWidth,
+      child: SfDataGrid(
+        controller: widget.controller,
+        source: widget.dataSource,
+        rowsPerPage: _rowsPerPage,
+        allowEditing: true,
+        allowSorting: true,
+        showCheckboxColumn: widget.showCheckboxColumn,
+        checkboxColumnSettings: const DataGridCheckboxColumnSettings(
+          showCheckboxOnHeader: false,
+        ),
+        columnWidthMode: ColumnWidthMode.fill,
+        columnWidthCalculationRange: ColumnWidthCalculationRange.allRows,
+        navigationMode: GridNavigationMode.cell,
+        selectionMode: SelectionMode.single,
+        gridLinesVisibility: GridLinesVisibility.horizontal,
+        headerGridLinesVisibility: GridLinesVisibility.horizontal,
+        columns: widget.columns,
+      ),
+    );
+  }
+
   Widget _buildDataGridPager() {
     double pageCount =
-        (widget.crudController!.getAll().length / _rowsPerPage).ceilToDouble();
+        (widget.crudController.getAll().length / _rowsPerPage).ceilToDouble();
 
     return (widget.dataSource.rowsPerPage != null)
         ? SizedBox(
@@ -176,22 +173,26 @@ class _DataGridPageState extends State<DataGridPage> {
   }
 
   void _defaultRemove() {
-    if (widget.crudController != null) {
-      String key = widget.controller.selectedRow
-          ?.getCells()
-          .firstWhere((element) => element.columnName == widget.keyColumnName)
-          .value;
+    String key = widget.controller.selectedRow
+        ?.getCells()
+        .firstWhere((element) => element.columnName == widget.keyColumnName)
+        .value;
 
-      widget.crudController?.removeByKey(key);
-    }
+    widget.crudController.removeByKey(key);
   }
 
   void _defaultAdd() {
-    if (widget.addForm != null) {
-      showDialog(
-        context: context,
-        builder: (_) => Dialog(child: widget.addForm),
-      );
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(child: widget.addForm),
+    );
+  }
+
+  void _handleOnSearchChanged(String value) {
+    widget.dataSource.clearFilters();
+    if (widget.buildSearchFilters != null) {
+      Map<String, FilterCondition> filters = widget.buildSearchFilters!(value);
+      filters.forEach((key, value) => widget.dataSource.addFilter(key, value));
     }
   }
 

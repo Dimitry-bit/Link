@@ -43,7 +43,7 @@ class _GPAPageState extends State<GPAPage> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              DataGridPage<Grade>(
+              CrudDataGrid<Grade>(
                 controller: _gridController,
                 dataSource: _gradesSource,
                 crudController: _gradesController,

@@ -33,7 +33,7 @@ class _LocationsPageState extends State<LocationsPage> {
     return Column(
       children: [
         const PageHeader(title: 'Locations'),
-        DataGridPage<Location>(
+        CrudDataGrid<Location>(
           controller: _gridController,
           dataSource: _locSource,
           crudController: _locController,
