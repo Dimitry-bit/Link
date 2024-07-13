@@ -65,11 +65,6 @@ class _HomePageState extends State<HomePage> {
                 icon: Icons.percent,
                 route: Routes.gpaPage,
               ),
-              _buildDestination(
-                'Map',
-                icon: Icons.map,
-                route: Routes.mapPage,
-              ),
               const Divider(),
               _buildDestination('Manage'),
               _buildDestination(

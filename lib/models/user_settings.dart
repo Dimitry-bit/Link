@@ -5,13 +5,10 @@ import 'package:flutter/material.dart';
 class UserSettings extends ChangeNotifier {
   Uri _upstreamUrl = Uri();
   Map<String, Uri> _communityLinks = {};
-  List<String> _mapPaths = List.empty();
 
   Uri get upstreamUrl => _upstreamUrl;
 
   Map<String, Uri> communityLinks() => _communityLinks;
-
-  List<String> mapPaths() => _mapPaths;
 
   bool setUpstreamUrl(String upstreamUrl) {
     String trimmedUpstream = upstreamUrl.trim();
@@ -65,11 +62,5 @@ class UserSettings extends ChangeNotifier {
     notifyListeners();
 
     return true;
-  }
-
-  void setMapPaths(String paths) {
-    String pathsTrimmed = paths.trim();
-    _mapPaths = pathsTrimmed.split('\n');
-    notifyListeners();
   }
 }

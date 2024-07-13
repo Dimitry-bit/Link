@@ -17,13 +17,11 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   final urlController = TextEditingController();
   final linksController = TextEditingController();
-  final mapPathsController = TextEditingController();
 
   @override
   void dispose() {
     urlController.dispose();
     linksController.dispose();
-    mapPathsController.dispose();
 
     super.dispose();
   }
@@ -31,7 +29,6 @@ class _SettingsPageState extends State<SettingsPage> {
   void _setControllers(UserSettings userSettings) {
     urlController.clear();
     linksController.clear();
-    mapPathsController.clear();
 
     urlController.text = userSettings.upstreamUrl.toString();
     linksController.text = userSettings
@@ -39,12 +36,9 @@ class _SettingsPageState extends State<SettingsPage> {
         .entries
         .map((e) => "${e.key}, ${e.value}")
         .join('\n');
-    mapPathsController.text =
-        userSettings.mapPaths().map((path) => path.toString()).join(',\n');
   }
 
   void _submit(BuildContext context, UserSettings userSettings) {
-    userSettings.setMapPaths(mapPathsController.text);
     String errorStr = '';
 
     if (!userSettings.setUpstreamUrl(urlController.text)) {
@@ -90,16 +84,6 @@ class _SettingsPageState extends State<SettingsPage> {
               maxLines: 5,
               labelText: 'Community Links',
               hintText: 'example, https://example.com/',
-              alignLabelWithHint: true,
-            ),
-            const Divider(),
-            OutlinedTextFieldForm(
-              controller: mapPathsController,
-              keyboardType: TextInputType.multiline,
-              minLines: 2,
-              maxLines: 5,
-              labelText: 'Map Images',
-              hintText: 'floor1.png',
               alignLabelWithHint: true,
             ),
             const SizedBox(height: 8.0),

@@ -11,7 +11,6 @@ import 'package:link/screens/settings_page.dart';
 class Routes {
   static const String dashboardPage = '/';
   static const String gpaPage = '/gpa';
-  static const String mapPage = '/map';
   static const String viewSchedulesPage = '/schedules';
 
   static const String coursesPage = '/courses';
@@ -23,7 +22,6 @@ class Routes {
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
-      case mapPage:
       case viewSchedulesPage:
       case manageSchedulesPage:
         return _createRoute(Placeholder(
