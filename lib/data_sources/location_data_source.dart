@@ -70,7 +70,7 @@ class LocationDataSource extends DataGridSourceBase<Location> {
     if (name != null) {
       Response<Location> res = controller.update(name, dto);
 
-      if (res.errorStr.isEmpty) {
+      if (!res.error()) {
         rows[dataRowIndex] = buildDataGridRow(res.data!);
       }
     }

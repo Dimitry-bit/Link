@@ -5,12 +5,29 @@ class Response<T> {
   final T? data;
 
   /// The error message string if an operation resulted in an error.
-  final String errorStr;
+  final List<String> errors = [];
 
-  const Response(this.data, {this.errorStr = ''});
+  Response(this.data);
 
-  /// Constructs an error [Response] object with the specified [errorMessage].
+  /// Constructs an error [Response] object with the specified [message].
   ///
   /// This is a shorthand constructor for creating a response indicating failure.
-  const Response.error(String errorMessage) : this(null, errorStr: errorMessage);
+  Response.error(String message) : data = null {
+    addError(message);
+  }
+
+  /// Adds an error message to the response.
+  ///
+  /// Use this method to add detailed error messages when an operation fails.
+  void addError(String message) => errors.add(message);
+
+  /// Checks if the response has any errors.
+  ///
+  /// Returns `true` if there are errors, `false` otherwise.
+  bool error() => errors.isNotEmpty;
+
+  /// Retrieves a concatenated string of all error messages.
+  ///
+  /// [delimiter] specifies the separator between individual error messages.
+  String errorStr({String delimiter = '\n'}) => errors.join(delimiter);
 }

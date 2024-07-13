@@ -71,7 +71,7 @@ class PersonnelDataSource extends DataGridSourceBase<Person> {
     if (email != null) {
       Response<Person> res = controller.update(email, dto);
 
-      if (res.errorStr.isEmpty) {
+      if (!res.error()) {
         rows[dataRowIndex] = buildDataGridRow(res.data!);
       }
     }

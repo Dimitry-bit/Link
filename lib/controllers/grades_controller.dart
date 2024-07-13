@@ -22,7 +22,7 @@ class GradesController extends CrudController<Grade> {
   }
 
   _handleCourseUpdate(Course? oldObj, Response<Course> res) {
-    bool keyChanged = res.errorStr.isEmpty &&
+    bool keyChanged = !res.error() &&
         (oldObj != null) &&
         (oldObj.primaryKey() != res.data!.primaryKey());
 

@@ -105,7 +105,7 @@ class GradesDataSource extends DataGridSourceBase<Grade> {
 
     String key = dataGridRow.getCells().first.value;
     Response<Grade> res = controller.update(key, dto);
-    if (res.errorStr.isEmpty) {
+    if (!res.error()) {
       int dataRowIndex = rows.indexOf(dataGridRow);
       rows[dataRowIndex] = buildDataGridRow(res.data!);
     }

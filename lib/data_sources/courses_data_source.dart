@@ -127,7 +127,7 @@ class CoursesDataSource extends DataGridSourceBase<Course> {
     if (code != null) {
       Response<Course> res = controller.update(code, dto);
 
-      if (res.errorStr.isEmpty) {
+      if (!res.error()) {
         rows[dataRowIndex] = buildDataGridRow(res.data!);
       }
     }

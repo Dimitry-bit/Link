@@ -72,10 +72,10 @@ class AddForm<T extends RepositoryModel<T>> extends StatelessWidget {
     final Response<T> res = crudController!.create(dto);
     final SnackBar alert = alertSnackBar(
       context,
-      res.errorStr.isEmpty
-          ? "Added ${T.toString()} {key: ${res.data!.primaryKey()}}."
-          : res.errorStr,
-      res.errorStr.isEmpty ? AlertTypes.success : AlertTypes.error,
+      res.error()
+          ? res.errorStr()
+          : "Added ${T.toString()} {key: ${res.data!.primaryKey()}}.",
+      res.error() ? AlertTypes.error : AlertTypes.success,
     );
 
     ScaffoldMessenger.of(context).showSnackBar(alert);

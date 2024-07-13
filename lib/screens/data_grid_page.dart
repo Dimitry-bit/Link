@@ -197,10 +197,10 @@ class _CrudDataGridState extends State<CrudDataGrid> {
   }
 
   void _handleUpdateError(dynamic oldValue, Response<dynamic> newValue) {
-    if (newValue.errorStr.isNotEmpty) {
+    if (newValue.error()) {
       final SnackBar alert = alertSnackBar(
         context,
-        newValue.errorStr,
+        newValue.errorStr(),
         AlertTypes.error,
       );
 

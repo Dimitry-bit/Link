@@ -120,7 +120,7 @@ abstract class DataGridSourceBase<T extends RepositoryModel<T>>
   }
 
   void _handleOnCreate(Response<T> res) {
-    if (res.errorStr.isNotEmpty || res.data == null) {
+    if (res.error() || res.data == null) {
       return;
     }
 
