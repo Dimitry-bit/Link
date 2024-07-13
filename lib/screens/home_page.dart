@@ -3,6 +3,7 @@ import 'package:link/components/logo.dart';
 import 'package:link/components/sidebar/sidebar.dart';
 import 'package:link/components/sidebar/sidebar_destination.dart';
 import 'package:link/routes.dart';
+import 'package:link/screens/about_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -93,9 +94,15 @@ class _HomePageState extends State<HomePage> {
                 icon: Icons.settings,
                 route: Routes.settingsPage,
               ),
-              _buildDestination(
-                'About',
+              SidebarDestination(
+                label: 'About',
                 icon: Icons.info,
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (_) => const Dialog(child: AboutPage()),
+                  );
+                },
               ),
             ],
           ),
